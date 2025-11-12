@@ -1,1 +1,3 @@
 # ink-sync
+
+## Sync-Inc
