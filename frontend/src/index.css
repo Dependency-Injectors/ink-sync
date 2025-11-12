@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  --color-petrol-50: #e0f4f5;
+  --color-petrol-100: #b3e4e7;
+  --color-petrol-200: #80d3d8;
+  --color-petrol-300: #4dc2c9;
+  --color-petrol-400: #26b3bb;
+  --color-petrol-500: #005f73;
+  --color-petrol-600: #004f5e;
+  --color-petrol-700: #003f49;
+  --color-petrol-800: #002f35;
+  --color-petrol-900: #001f21;
+  --color-petrol-950: #001418;
+}
