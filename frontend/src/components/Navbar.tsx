@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { Link } from "react-router";
 import NavItem from "./NavItem";
 
 const Navbar = () => {

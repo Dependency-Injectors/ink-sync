@@ -2,20 +2,24 @@ import { redirect } from "react-router";
 
 const Login = () => {
   const handleLogin = async (formData: FormData) => {
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const res = await fetch("http://localhost:3000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    if (res.ok) {
-      redirect("/");
-      return;
-    } else {
-      alert("Login failed. Please check your credentials and try again.");
+    try {
+      const email = formData.get("email");
+      const password = formData.get("password");
+      const res = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (res.ok) {
+        redirect("/");
+        return;
+      } else {
+        alert("Login failed. Please check your credentials and try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
     }
   };
   return (

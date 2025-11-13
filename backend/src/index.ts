@@ -1,13 +1,14 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 
+import cors from "@elysiajs/cors";
 import { authRoutes } from "./routes/authRoute";
+import { healthRoute } from "./routes/healthRoute";
 
-
-
-const healthRoute = new Elysia().get("/health", "OK");
-
-
-const app = new Elysia().use(healthRoute).use(authRoutes).listen(3000);
+const app = new Elysia()
+  .use(cors())
+  .use(healthRoute)
+  .use(authRoutes)
+  .listen(3000);
 
 console.log(
   `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
