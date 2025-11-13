@@ -6,7 +6,7 @@ const NavItem = ({ to, children }: PropsWithChildren<{ to: string }>) => {
     <NavLink to={to}>
       {({ isActive }) => (
         <span
-          className={`${isActive ? "text-petrol-500" : ""} hover:text-petrol-400 `}
+          className={`${isActive ? "text-petrol-500" : ""} hover:text-petrol-400`}
         >
           {children}
         </span>

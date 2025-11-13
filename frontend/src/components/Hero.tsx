@@ -55,7 +55,7 @@ const Hero = () => {
   }, [])
 
   return (
- <div className="  flex flex-col justify-center items-center h-screen">
+ <div className="  flex flex-col justify-center items-center h-screen relative">
         <div className='absolute top-0 left-0 w-full h-full overflow-hidden'>
     <canvas
       ref={canvasRef}

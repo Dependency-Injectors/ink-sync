@@ -1,19 +1,22 @@
-import { redirect } from "react-router";
+import {  useNavigate } from "react-router";
 
 const Login = () => {
+
+  const navigate = useNavigate()
   const handleLogin = async (formData: FormData) => {
     try {
       const email = formData.get("email");
       const password = formData.get("password");
-      const res = await fetch("http://localhost:3000/login", {
+      const res = await fetch("http://localhost:3000/login", { // Adjust URL to be out of env
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
       if (res.ok) {
-        redirect("/");
+        navigate("/");
         return;
       } else {
         alert("Login failed. Please check your credentials and try again.");
