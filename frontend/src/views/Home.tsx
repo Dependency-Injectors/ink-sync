@@ -5,7 +5,7 @@ import Pricing from "../components/Pricing";
 const Home = () => {
   return (
     <>
-      <div className=" bg-gray-950 text-white flex flex-col justify-center items-center">
+      <div className=" bg-gray-950 text-white flex flex-col justify-center ">
         <Hero />
         <Features />
         <Pricing />
