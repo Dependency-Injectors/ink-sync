@@ -72,7 +72,7 @@ const Hero = () => {
       </p>
     </div>
     <div className='flex gap-5 mt-6'>
-        <button className='mt-10 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg shadow-cyan-500/30 z-30'>
+        <button className='mt-10 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg shadow-cyan-500/30 z-30 animate-shadow-pulse'>
       Get Started
     </button>
      <button className='mt-10 px-6 py-3 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded-full shadow-lg shadow-cyan-500/30 z-30'>
