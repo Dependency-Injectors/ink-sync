@@ -1,3 +1,4 @@
+import CTA from "./components/CTA";
 import  Features from "./components/Features";
 import Hero from "./components/Hero";
 import Pricing from "./components/Pricing";
@@ -8,6 +9,7 @@ const App = () => {
     <div className=" bg-gray-950 text-white flex flex-col justify-center items-center">
      <Hero />  
       <Features />
+      <CTA/>
       <Pricing  />
       </div>
       </>

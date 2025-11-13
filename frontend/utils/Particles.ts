@@ -25,7 +25,7 @@ export class Particle {
         const angle = Math.random() * Math.PI * 2
         this.vx = Math.cos(angle) * speed
         this.vy = Math.sin(angle) * speed
-        this.r = 0.8 + Math.random() * 2.2
+        this.r = 0.8 + Math.random() * 1.1
       }
 
       update() {

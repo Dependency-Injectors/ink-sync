@@ -1,1 +1,9 @@
 @import "tailwindcss";
+@keyframes shadow-pulse {
+  0%, 100% { box-shadow: 1px 2px 25px 5px #e3e3e369; }
+  50% { box-shadow: 1px 2px 25px 5px #e3e3e300; }
+}
+
+.animate-shadow-pulse {
+  animation: shadow-pulse 3s ease-in-out infinite;
+}
