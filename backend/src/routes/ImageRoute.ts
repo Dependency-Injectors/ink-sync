@@ -1,4 +1,4 @@
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 import { prisma } from "../db/db";
 import jwt from "@elysiajs/jwt";
 import { ImagePlainInputCreate } from "../../generated/prismabox/Image";
@@ -46,6 +46,7 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
       const image = await prisma.image.findUnique({
         where: { id: params.id },
       });
+      return image;
     })
     .post(
       "/",
@@ -91,7 +92,7 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
           where: { UserId: user.id, ImageId: imageId },
         });
         if (!userImage) {
-          throw new Error("Image not found or not CoOwned by user");
+          throw new Error("Image not found or not co-owned by user");
         }
         const coOwner = await prisma.user.findUnique({
           where: { id: userId },
