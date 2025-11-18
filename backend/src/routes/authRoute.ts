@@ -70,7 +70,7 @@ const authRoutes = new Elysia()
       return user;
     },
     {
-      cookie: CookieSchema,
+      // cookie: CookieSchema,
       body: UserPlainInputCreate,
     }
   )
