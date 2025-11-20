@@ -28,15 +28,15 @@ model User {
   password   String
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  userImages UserImage[]
+  userImages UserImage[] 
 }
 
 model UserImage {
   id        String   @id @default(uuid())
   UserId    String
   ImageId   String
-  user      User     @relation(fields: [UserId], references: [id])
-  image     Image    @relation(fields: [ImageId], references: [id])
+  user      User     @relation(fields: [UserId], references: [id], onDelete: Cascade)
+  image     Image    @relation(fields: [ImageId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -50,7 +50,7 @@ model Image {
   paths      Path[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  userImages UserImage[]
+  userImages UserImage[] 
 }
 
 model Path {
@@ -58,7 +58,7 @@ model Path {
   color       String
   strokeWidth Int
   ImageId     String
-  image       Image    @relation(fields: [ImageId], references: [id])
+  image       Image    @relation(fields: [ImageId], references: [id], onDelete: Cascade)
   points      Point[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -69,7 +69,7 @@ model Point {
   x         Int
   y         Int
   PathId    String
-  path      Path     @relation(fields: [PathId], references: [id])
+  path      Path     @relation(fields: [PathId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

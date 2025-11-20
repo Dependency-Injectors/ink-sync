@@ -76,9 +76,6 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
       if (!userImage) {
         throw new Error("Image not found or not owned by user");
       }
-      await prisma.userImage.delete({
-        where: { id: userImage.id },
-      });
       await prisma.image.delete({
         where: { id: params.id },
       });
