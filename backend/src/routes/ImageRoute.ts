@@ -9,7 +9,7 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
       jwt({
         name: "jwt",
         secret: process.env.JWT_SECRET || "hello",
-        exp: "1d", // It uses a date stamp or a string describing a time span eg. "1d", "20h", "60m", idk what time spans are supported
+        exp: "1d", // It uses a time stamp or a string describing a time span eg. "1d", "20h", "60m", idk what time spans are supported
       })
     )
     .resolve(async ({ jwt, cookie: { auth } }) => {
@@ -19,7 +19,6 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
         email: string;
       };
       const user = await prisma.user.findUnique({ where: { id: token.id } });
-      console.log("Authenticated user:", user);
       if (!user) throw new Error("Unauthorized");
       return {
         user: {
