@@ -61,7 +61,6 @@ const authRoutes = new Elysia()
 
       const value = await jwt.sign({ id: user.id, email: user.email });
 
-      // if (!auth) auth = { value: undefined };
       auth.set({
         value,
         httpOnly: true,
@@ -89,6 +88,16 @@ const authRoutes = new Elysia()
     {
       cookie: CookieSchema,
       response: [UserPlain],
+    }
+  )
+  .get(
+    "/logout",
+    ({ cookie: { auth } }) => {
+      auth?.remove();
+      return "Logged out successfully";
+    },
+    {
+      cookie: CookieSchema,
     }
   );
 //
