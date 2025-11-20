@@ -1,5 +1,5 @@
 import jwt from "@elysiajs/jwt";
-import Elysia from "elysia";
+import Elysia, { t } from "elysia";
 import { prisma } from "../db/db";
 import { CookieSchema } from "../types/schema";
 import {
@@ -12,7 +12,7 @@ const authRoutes = new Elysia()
     jwt({
       name: "jwt",
       secret: process.env.JWT_SECRET || "hello",
-      exp: "1d" // 1 day
+      exp: "1d", // 1 day
     })
   )
   .post(
@@ -60,7 +60,7 @@ const authRoutes = new Elysia()
       }
 
       const value = await jwt.sign({ id: user.id, email: user.email });
-      // if (!auth) throw new Error("No auth cookie");
+
       auth.set({
         value,
         httpOnly: true,
@@ -70,8 +70,10 @@ const authRoutes = new Elysia()
       return user;
     },
     {
-      cookie: CookieSchema,
       body: UserPlainInputCreate,
+      cookie: t.Cookie({
+        auth: t.Optional(t.String()),
+      }),
     }
   )
   .get(
@@ -86,6 +88,16 @@ const authRoutes = new Elysia()
     {
       cookie: CookieSchema,
       response: [UserPlain],
+    }
+  )
+  .get(
+    "/logout",
+    ({ cookie: { auth } }) => {
+      auth?.remove();
+      return "Logged out successfully";
+    },
+    {
+      cookie: CookieSchema,
     }
   );
 //

@@ -3,11 +3,13 @@ import { Elysia } from "elysia";
 import cors from "@elysiajs/cors";
 import { authRoutes } from "./routes/authRoute";
 import { healthRoute } from "./routes/healthRoute";
+import { imageRoutes } from "./routes/ImageRoute";
 
 const app = new Elysia()
   .use(cors())
   .use(healthRoute)
   .use(authRoutes)
+  .use(imageRoutes)
   .listen(3000);
 
 console.log(
