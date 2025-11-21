@@ -13,8 +13,12 @@ const Navbar = () => {
             <NavItem to="/">Home</NavItem>
           </li>
           <li>
+            <NavItem to="/draw">Draw</NavItem>
+          </li>
+          <li>
             <NavItem to="/about">About</NavItem>
           </li>
+          
           <li>
             <NavItem to="/login">Login</NavItem >
           </li>
