@@ -16,7 +16,7 @@ const Navbar = () => {
             <NavItem to="/about">About</NavItem>
           </li>
           <li>
-            <NavItem to="/login">Login</NavItem >
+            <NavItem to="/login">Login</NavItem>
           </li>
         </ul>
       </nav>
