@@ -1,13 +1,16 @@
-import {  useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { useCurrentUser } from "../lib/useCurrentUser";
 
 const Login = () => {
+  const { setUser } = useCurrentUser();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleLogin = async (formData: FormData) => {
     try {
       const email = formData.get("email");
       const password = formData.get("password");
-      const res = await fetch("http://localhost:3000/login", { // Adjust URL to be out of env
+      const res = await fetch("http://localhost:3000/login", {
+        // Adjust URL to be out of env
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -15,12 +18,13 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
         credentials: "include",
       });
-      if (res.ok) {
-        navigate("/");
-        return;
-      } else {
+      if (!res.ok) {
         alert("Login failed. Please check your credentials and try again.");
+        return;
       }
+      const data = await res.json();
+      setUser({ email: data.email });
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
     }
