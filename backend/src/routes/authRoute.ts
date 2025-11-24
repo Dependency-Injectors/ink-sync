@@ -93,6 +93,7 @@ const authRoutes = new Elysia()
   .get(
     "/logout",
     ({ cookie: { auth } }) => {
+      console.log("Logging out, clearing cookie");
       auth?.remove();
       return "Logged out successfully";
     },

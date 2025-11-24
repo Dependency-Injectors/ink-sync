@@ -3,22 +3,22 @@ import { useCurrentUser } from "../lib/useCurrentUser";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 
-const Login = () => {
+const Register = () => {
   const { setUser } = useCurrentUser();
 
   const navigate = useNavigate();
-  const handleLogin = async (formData: FormData) => {
+  const handleRegister = async (formData: FormData) => {
     try {
       const email = formData.get("email");
       const password = formData.get("password");
-      const res = await axiosInstance.post("/login", { email, password });
+      const res = await axiosInstance.post("/register", { email, password });
       if (res.status !== 200) {
         toast.error("Login failed. Please check your credentials.");
         return;
       }
       const data = res.data;
       setUser({ email: data.email });
-      toast.success(`Welcome back, ${data.email}!`);
+      toast.success("Registered successfully");
       navigate("/");
     } catch (error) {
       toast.error(String(error));
@@ -27,11 +27,11 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen text-white bg-linear-to-br from-gray-950 to-gray-800">
       <form
-        action={handleLogin}
+        action={handleRegister}
         className="grid gap-6 bg-gray-800 p-8 rounded-lg shadow shadow-petrol-800 w-full max-w-md"
       >
         <p className="text-lg font-semibold text-petrol-500">
-          Please enter your email and password to log in.
+          Please enter your email and password to register.
         </p>
         <div className="grid gap-4">
           <div className="grid gap-2">
@@ -60,19 +60,19 @@ const Login = () => {
           </div>
         </div>
         <p>
-          Don't have an account?{" "}
-          <Link to="/register" className="text-petrol-400 hover:underline">
-            Register here
+          Already have an account?{" "}
+          <Link to="/login" className="text-petrol-400 hover:underline">
+            Log in here
           </Link>
         </p>
         <button
           type="submit"
           className="mt-4 p-3 rounded-md bg-petrol-500 text-white font-semibold hover:bg-petrol-600 focus:outline-none focus:ring-2 focus:ring-petrol-500"
         >
-          Log In
+          Register
         </button>
       </form>
     </div>
   );
 };
-export default Login;
+export default Register;

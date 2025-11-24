@@ -1,5 +1,5 @@
-import {create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface User {
   email: string;
@@ -19,6 +19,6 @@ export const useCurrentUser = create<CurrentUserState>()(
     {
       name: "currentUser",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
