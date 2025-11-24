@@ -39,6 +39,7 @@ const Login = () => {
               type="email"
               id="email"
               name="email"
+              required
               placeholder="example@gmail.com"
               className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500"
             />
@@ -51,6 +52,7 @@ const Login = () => {
               type="password"
               id="password"
               name="password"
+              required
               placeholder="********"
               className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500"
             />
