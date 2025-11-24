@@ -12,16 +12,13 @@ const Register = () => {
       const email = formData.get("email");
       const password = formData.get("password");
       const res = await axiosInstance.post("/register", { email, password });
-      if (res.status !== 200) {
-        toast.error("Login failed. Please check your credentials.");
-        return;
-      }
       const data = res.data;
       setUser({ email: data.email });
       toast.success("Registered successfully");
       navigate("/");
     } catch (error) {
-      toast.error(String(error));
+      toast.error("Request failed. Please try again.");
+      console.error("Registration error:", error);
     }
   };
   return (
