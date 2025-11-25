@@ -12,7 +12,7 @@ const app = new Elysia()
   .use(authRoutes)
   .use(imageRoutes)
   .use(socketRoute)
-  .listen(3007);
+  .listen(process.env.PORT || 1337);
 
 console.log(
   `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
@@ -20,7 +20,7 @@ console.log(
 
 // app
 //   .handle(
-//     new Request("http://localhost:3000/auth/login", {
+//     new Request("http://localhost:1337/auth/login", {
 //       method: "POST",
 //       headers: {
 //         "Content-Type": "application/json",

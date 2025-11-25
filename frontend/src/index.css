@@ -14,8 +14,13 @@
   --color-petrol-950: #001418;
 }
 @keyframes shadow-pulse {
-  0%, 100% { box-shadow: 1px 2px 25px 5px #e3e3e369; }
-  50% { box-shadow: 1px 2px 25px 5px #e3e3e300; }
+  0%,
+  100% {
+    box-shadow: 1px 2px 25px 5px #e3e3e369;
+  }
+  50% {
+    box-shadow: 1px 2px 25px 5px #e3e3e300;
+  }
 }
 
 .animate-shadow-pulse {

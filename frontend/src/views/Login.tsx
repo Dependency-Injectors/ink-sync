@@ -1,35 +1,31 @@
-import {  useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useCurrentUser } from "../lib/useCurrentUser";
+import toast from "react-hot-toast";
+import { axiosInstance } from "../lib/axios";
 
 const Login = () => {
+  const { setUser } = useCurrentUser();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleLogin = async (formData: FormData) => {
     try {
       const email = formData.get("email");
       const password = formData.get("password");
-      const res = await fetch("http://localhost:3000/login", { // Adjust URL to be out of env
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
-      if (res.ok) {
-        navigate("/");
-        return;
-      } else {
-        alert("Login failed. Please check your credentials and try again.");
-      }
+      const res = await axiosInstance.post("/login", { email, password });
+      const data = res.data;
+      setUser({ email: data.email });
+      toast.success(`Welcome back, ${data.email}!`);
+      navigate("/");
     } catch (error) {
+      toast.error("Login failed. Please try again.");
       console.error("Login error:", error);
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen text-white">
+    <div className="flex items-center justify-center min-h-screen text-white bg-linear-to-br from-gray-950 to-gray-800">
       <form
         action={handleLogin}
-        className="grid gap-6 bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md"
+        className="grid gap-6 bg-gray-800 p-8 rounded-lg shadow shadow-petrol-800 w-full max-w-md"
       >
         <p className="text-lg font-semibold text-petrol-500">
           Please enter your email and password to log in.
@@ -43,6 +39,7 @@ const Login = () => {
               type="email"
               id="email"
               name="email"
+              required
               placeholder="example@gmail.com"
               className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500"
             />
@@ -55,11 +52,18 @@ const Login = () => {
               type="password"
               id="password"
               name="password"
+              required
               placeholder="********"
               className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500"
             />
           </div>
         </div>
+        <p>
+          Don't have an account?{" "}
+          <Link to="/register" className="text-petrol-400 hover:underline">
+            Register here
+          </Link>
+        </p>
         <button
           type="submit"
           className="mt-4 p-3 rounded-md bg-petrol-500 text-white font-semibold hover:bg-petrol-600 focus:outline-none focus:ring-2 focus:ring-petrol-500"

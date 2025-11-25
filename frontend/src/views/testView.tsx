@@ -4,5 +4,5 @@ const testView = () => {
       <h1 className="text-5xl text-white">Hello, World!</h1>
     </div>
   );
-}
-export default testView
+};
+export default testView;
