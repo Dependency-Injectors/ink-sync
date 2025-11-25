@@ -1,24 +1,41 @@
 import { Link, useNavigate } from "react-router";
-import { useCurrentUser } from "../lib/useCurrentUser";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
+import { useState } from "react";
+import { AxiosError } from "axios";
 
 const Register = () => {
-  const { setUser } = useCurrentUser();
+  const [pending, setPending] = useState(false);
 
   const navigate = useNavigate();
   const handleRegister = async (formData: FormData) => {
+    setPending(true);
     try {
       const email = formData.get("email");
       const password = formData.get("password");
-      const res = await axiosInstance.post("/register", { email, password });
-      const data = res.data;
-      setUser({ email: data.email });
-      toast.success("Registered successfully");
-      navigate("/");
+      await axiosInstance.post("/register", { email, password });
+      toast.success("Registration successful! Please log in.");
+      navigate("/login");
     } catch (error) {
-      toast.error("Request failed. Please try again.");
-      console.error("Registration error:", error);
+      if (error instanceof AxiosError && error.response) {
+        const status = error.response.status;
+        if (status === 422) {
+          toast.error(
+            `Password does not meet complexity requirements. It must be 8-40 characters
+             long and include uppercase letters,
+             lowercase letters, numbers, and special characters.`,
+          );
+        } else if (status === 409) {
+          toast.error("User already exists. Please log in instead.");
+        } else {
+          toast.error("Server error. Please try again later.");
+        }
+      } else {
+        toast.error("Request failed. Please try again.");
+      }
+      console.error("Registration error:", String(error));
+    } finally {
+      setPending(false);
     }
   };
   return (
@@ -41,7 +58,8 @@ const Register = () => {
               name="email"
               required
               placeholder="example@gmail.com"
-              className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500"
+              disabled={pending}
+              className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500 disabled:opacity-50 invalid:ring-2 invalid:ring-red-500 focus:invalid:ring-red-500"
             />
           </div>
           <div className="grid gap-2">
@@ -53,8 +71,12 @@ const Register = () => {
               id="password"
               name="password"
               placeholder="********"
+              minLength={8}
+              maxLength={40}
+              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,40}$"
               required
-              className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500"
+              disabled={pending}
+              className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500 disabled:opacity-50 invalid:ring-2 invalid:ring-red-500 focus:invalid:ring-red-500"
             />
           </div>
         </div>
@@ -66,7 +88,8 @@ const Register = () => {
         </p>
         <button
           type="submit"
-          className="mt-4 p-3 rounded-md bg-petrol-500 text-white font-semibold hover:bg-petrol-600 focus:outline-none focus:ring-2 focus:ring-petrol-500"
+          className="mt-4 p-3 rounded-md bg-petrol-500 text-white font-semibold hover:bg-petrol-600 focus:outline-none focus:ring-2 focus:ring-petrol-500 disabled:opacity-50"
+          disabled={pending}
         >
           Register
         </button>

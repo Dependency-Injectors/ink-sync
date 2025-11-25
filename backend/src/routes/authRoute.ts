@@ -1,11 +1,10 @@
 import jwt from "@elysiajs/jwt";
-import Elysia, { t } from "elysia";
+import Elysia, { status, t } from "elysia";
 import { prisma } from "../db/db";
-import { CookieSchema } from "../types/schema";
-import {
-  UserPlain,
-  UserPlainInputCreate,
-} from "../../generated/prismabox/User";
+import { CookieSchema } from "../types/cookieSchema";
+import { UserPlain } from "../../generated/prismabox/User";
+import { UserSchema } from "../types/authSchema";
+import { sleep } from "bun";
 
 const authRoutes = new Elysia()
   .use(
@@ -19,6 +18,12 @@ const authRoutes = new Elysia()
     "/register",
     async ({ body }) => {
       try {
+        const user = await prisma.user.findUnique({
+          where: { email: body.email },
+        });
+        if (user) {
+          return status(409, "User already exists");
+        }
         const { password } = body;
         const hashedPassword = await Bun.password.hash(password, {
           algorithm: "argon2id",
@@ -26,7 +31,7 @@ const authRoutes = new Elysia()
           timeCost: 3,
         });
 
-        const user = await prisma.user.create({
+        const newUser = await prisma.user.create({
           data: {
             email: body.email,
             password: hashedPassword,
@@ -39,7 +44,7 @@ const authRoutes = new Elysia()
       }
     },
     {
-      body: UserPlainInputCreate,
+      body: UserSchema,
     }
   )
   .post(
@@ -48,6 +53,7 @@ const authRoutes = new Elysia()
       const user = await prisma.user.findUnique({
         where: { email: body.email },
       });
+      console.log(body);
       if (!user) {
         throw new Error("User not found");
       }
@@ -67,10 +73,11 @@ const authRoutes = new Elysia()
         maxAge: 60 * 60 * 24,
         secure: false,
       });
-      return user;
+
+      return { email: user.email };
     },
     {
-      body: UserPlainInputCreate,
+      body: UserSchema,
       cookie: t.Cookie({
         auth: t.Optional(t.String()),
       }),
@@ -93,7 +100,6 @@ const authRoutes = new Elysia()
   .get(
     "/logout",
     ({ cookie: { auth } }) => {
-      console.log("Logging out, clearing cookie");
       auth?.remove();
       return "Logged out successfully";
     },
