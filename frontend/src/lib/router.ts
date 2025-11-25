@@ -3,6 +3,7 @@ import testView from "../views/testView";
 import RootLayout from "../layouts/RootLayout";
 import Login from "../views/Login";
 import Home from "../views/Home";
+import Draw from "../views/Draw";
 import Register from "../views/Register";
 
 export const router = createBrowserRouter([
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
       { index: true, Component: Home },
       { path: "about", Component: testView },
       { path: "login", Component: Login },
+      { path: "draw", Component: Draw },
       { path: "register", Component: Register },
     ],
   },

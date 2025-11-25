@@ -4,12 +4,14 @@ import cors from "@elysiajs/cors";
 import { authRoutes } from "./routes/authRoute";
 import { healthRoute } from "./routes/healthRoute";
 import { imageRoutes } from "./routes/ImageRoute";
+import { socketRoute } from "./routes/socketRoute";
 
 const app = new Elysia()
   .use(cors())
   .use(healthRoute)
   .use(authRoutes)
   .use(imageRoutes)
+  .use(socketRoute)
   .listen(process.env.PORT || 1337);
 
 console.log(
