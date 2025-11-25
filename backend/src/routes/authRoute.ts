@@ -4,7 +4,6 @@ import { prisma } from "../db/db";
 import { CookieSchema } from "../types/cookieSchema";
 import { UserPlain } from "../../generated/prismabox/User";
 import { UserSchema } from "../types/authSchema";
-import { sleep } from "bun";
 
 const authRoutes = new Elysia()
   .use(
