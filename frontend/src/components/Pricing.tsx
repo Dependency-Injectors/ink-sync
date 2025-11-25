@@ -6,7 +6,7 @@ const Pricing = () => {
   return (
     <div className="flex flex-col py-12 justify-center items-center">
       <h2 className="text-4xl py-12">Pricing</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 py-12 justify-items-center items-center gap-8 p-8 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 py-12 justify-items-center items-center gap-8 p-8 w-full max-w-6xl">
         {PricingItem(
           "Basic Plan",
           "Access to basic drawing tools and local storage.",

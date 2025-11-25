@@ -6,7 +6,7 @@ const Features = () => {
   return (
     <div className="justify-center bg-gray-700 items-center flex flex-col py-12 gap-6 w-full">
       <h2 className="text-4xl">Features</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 py-12 justify-items-center gap-8 p-8 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 py-12 justify-items-center gap-8 p-8 max-w-6xl w-full">
         {FeatureItem(
           "Real-time Collaboration",
           "Draw together with friends and colleagues in real-time, no matter where you are.",
