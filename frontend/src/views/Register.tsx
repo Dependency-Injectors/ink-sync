@@ -72,12 +72,16 @@ const Register = () => {
               name="password"
               placeholder="********"
               minLength={8}
-              maxLength={40}
-              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,40}$"
+              maxLength={64}
+              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,64}$"
               required
               disabled={pending}
               className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500 disabled:opacity-50 invalid:ring-2 invalid:ring-red-500 focus:invalid:ring-red-500"
             />
+            <p className="text-xs text-gray-400">
+              8-64 characters with uppercase, lowercase, numbers, and special
+              characters
+            </p>
           </div>
         </div>
         <p>

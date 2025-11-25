@@ -4,10 +4,9 @@ export const UserSchema = t.Object({
   email: t.String({ format: "email" }),
   password: t.String({
     minLength: 8,
-    maxLength: 40,
-    pattern:
-      "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~])[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~]{8,40}$",
+    maxLength: 64,
+    pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,64}$",
     error:
-      "Password must be 8-40 characters long, include uppercase and lowercase letters, a number, and a special character.",
+      "Password must be 8-64 characters long, include uppercase and lowercase letters, a number, and a special character.",
   }),
 });
