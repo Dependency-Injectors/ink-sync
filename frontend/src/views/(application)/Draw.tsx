@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useDrawing } from '../../hooks/useDrawing';
 
 interface DrawEvent {
   type: 'start' | 'draw' | 'end';
@@ -7,6 +8,7 @@ interface DrawEvent {
   userId: string;
   strokeId: string;
   color?: string;
+  size?: number;
 }
 
 interface ActiveStroke {
@@ -14,14 +16,16 @@ interface ActiveStroke {
   userId: string;
   points: { x: number; y: number }[];
   color: string;
+  size: number;
   lastPoint?: { x: number; y: number };
 }
 
 const Draw = () => {
+  const { brushColor, brushSize } = useDrawing();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
-  const [userId] = useState(() => `user-${Math.random().toString(36).substr(2, 9)}`);
+  const [user] = useState(() => `user-${Math.random().toString(36).substr(2, 9)}`);
   const [currentStrokeId, setCurrentStrokeId] = useState<string | null>(null);
   const activeStrokes = useRef<Map<string, ActiveStroke>>(new Map());
 
@@ -34,7 +38,8 @@ const Draw = () => {
           strokeId: event.strokeId,
           userId: event.userId,
           points: [{ x: event.x, y: event.y }],
-          color: event.userId === userId ? '#2563eb' : '#dc2626'
+          color: event.color || (event.userId === user ? brushColor : '#dc2626'),
+          size: event.size || (event.userId === user ? brushSize : 2)
         });
       } else if (event.type === 'draw') {
         const stroke = strokes.get(event.strokeId);
@@ -55,7 +60,7 @@ const Draw = () => {
         if (stroke.points.length < 2) return;
         
         ctx.strokeStyle = stroke.color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = stroke.size;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.beginPath();
@@ -69,7 +74,7 @@ const Draw = () => {
       });
     };
   
-    const websocket = new WebSocket(`ws://localhost:1337/draw?id=${userId}`);
+    const websocket = new WebSocket(`ws://localhost:1337/draw?id=${user}`);
     
     websocket.onopen = () => {
       console.log('Connected to drawing server');
@@ -95,7 +100,7 @@ const Draw = () => {
     };
 
     return () => websocket.close();
-  }, [userId]);
+  }, [user, brushColor, brushSize]);
 
   // Resize canvas to match window size
   const redrawCanvas = useCallback(() => {
@@ -111,7 +116,7 @@ const Draw = () => {
       if (stroke.points.length < 2) return;
       
       ctx.strokeStyle = stroke.color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = stroke.size;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -164,9 +169,10 @@ const Draw = () => {
       type,
       x,
       y,
-      userId: userId,
+      userId: user,
       strokeId,
-      color: '#2563eb'
+      color: brushColor,
+      size: brushSize
     };
     
     console.log('Sending draw event:', message);
@@ -188,7 +194,8 @@ const Draw = () => {
         strokeId: event.strokeId,
         userId: event.userId,
         points: [{ x: event.x, y: event.y }],
-        color: event.userId === userId ? '#2563eb' : '#dc2626'
+        color: event.color || (event.userId === user ? brushColor : '#dc2626'),
+        size: event.size || (event.userId === user ? brushSize : 2)
       });
       console.log(`Added new stroke ${event.strokeId} for user ${event.userId}`);
     } else if (event.type === 'draw') {
@@ -216,12 +223,12 @@ const Draw = () => {
     
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const strokeId = `${userId}-${Date.now()}`;
+    const strokeId = `${user}-${Date.now()}`;
     
     setIsDrawing(true);
     setCurrentStrokeId(strokeId);
     sendDrawEvent('start', x, y, strokeId);
-    handleLocalDrawEvent({ type: 'start', x, y, userId: userId, strokeId });
+    handleLocalDrawEvent({ type: 'start', x, y, userId: user, strokeId });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -234,7 +241,7 @@ const Draw = () => {
     const y = e.clientY - rect.top;
     
     sendDrawEvent('draw', x, y, currentStrokeId);
-    handleLocalDrawEvent({ type: 'draw', x, y, userId: userId, strokeId: currentStrokeId });
+    handleLocalDrawEvent({ type: 'draw', x, y, userId: user, strokeId: currentStrokeId });
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -248,15 +255,15 @@ const Draw = () => {
     
     setIsDrawing(false);
     sendDrawEvent('end', x, y, currentStrokeId);
-    handleLocalDrawEvent({ type: 'end', x, y, userId: userId, strokeId: currentStrokeId });
+    handleLocalDrawEvent({ type: 'end', x, y, userId: user, strokeId: currentStrokeId });
     setCurrentStrokeId(null);
   };
 
   return (
-    <div className="min-h-screen w-full overflow-auto bg-gray-900">
+    <div className="min-h-screen w-full overflow-auto bg-gray-900 ml-16">
     
         <div className="text-sm text-gray-300 p-4">
-          User ID: {userId} | Drawing: {isDrawing ? 'Yes' : 'No'}
+          User ID: {user} | Drawing: {isDrawing ? 'Yes' : 'No'} | Color: {brushColor} | Size: {brushSize}px
         </div>
     
       

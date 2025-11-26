@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
-import { useCurrentUser } from "../lib/useCurrentUser";
+import { useCurrentUser } from "../../lib/useCurrentUser";
 import toast from "react-hot-toast";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance } from "../../lib/axios";
 
 const Login = () => {
   const { setUser } = useCurrentUser();
