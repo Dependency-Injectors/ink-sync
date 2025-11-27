@@ -8,9 +8,7 @@ const UserListButton = ({ users, imageId }: { users: User[]; imageId: string }) 
   const [visible, setVisible] = useState(false);
   const handleAddUser = (user: User) => async () => {
     try {
-      await axiosInstance.post(`/${imageId}/${user.id}/coown`, {
-        user,
-      });
+      await axiosInstance.put(`/images/${imageId}/${user.id}/coown`);
       toast.success(`User ${user.email} added to image`);
     } catch (error) {
       toast.error(`Error adding user ${user.email} to image`);

@@ -48,9 +48,11 @@ const Images = () => {
       });
       setImages((prevImages) => [...prevImages, res.data]);
       toast.success("Image created successfully");
+      
     } catch (error) {
       toast.error("Error creating image");
       console.error("Error creating image:", error);
+      
     }
   };
 
@@ -61,10 +63,11 @@ const Images = () => {
         <li className="p-4 bg-gray-800 rounded-lg shadow-md text-white flex flex-col gap-4">
           <form
             className="grid gap-4"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
-              createImage(formData);
+              await createImage(formData);
+              e.currentTarget.reset();
             }}
           >
             <div className="grid gap-2">
