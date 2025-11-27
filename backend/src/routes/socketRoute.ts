@@ -9,6 +9,7 @@ interface DrawEvent {
   userId: string;
   strokeId: string;
   color?: string;
+  size?: number;
 }
 
 const drawingClients = new Map<string, any>();

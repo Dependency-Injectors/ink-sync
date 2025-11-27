@@ -1,6 +1,6 @@
-import Features from "../components/Features";
-import Hero from "../components/Hero";
-import Pricing from "../components/Pricing";
+import Features from "../../components/Features";
+import Hero from "../../components/Hero";
+import Pricing from "../../components/Pricing";
 
 const Home = () => {
   return (
