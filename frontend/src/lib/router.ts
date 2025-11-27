@@ -5,6 +5,7 @@ import Login from "../views/Login";
 import Home from "../views/Home";
 import Draw from "../views/Draw";
 import Register from "../views/Register";
+import Images from "../views/Images";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: "login", Component: Login },
       { path: "draw", Component: Draw },
       { path: "register", Component: Register },
+      { path: "images", Component: Images },
     ],
   },
 ]);
