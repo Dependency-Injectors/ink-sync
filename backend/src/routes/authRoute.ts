@@ -83,17 +83,26 @@ const authRoutes = new Elysia()
     }
   )
   .get(
-    "/profile",
+    "/users",
     async ({ jwt, cookie: { auth } }) => {
       if (!auth) throw new Error("No auth cookie");
       const token = await jwt.verify(auth.value);
       if (!token) throw new Error("Invalid token");
       const users = await prisma.user.findMany();
-      return users;
+      const usersWithoutPasswords = users.map((user) => ({
+        id: user.id,
+        email: user.email,
+      }));
+      return usersWithoutPasswords;
     },
     {
       cookie: CookieSchema,
-      response: [UserPlain],
+      response: t.Array(
+        t.Object({
+          id: t.String(),
+          email: t.String(),
+        })
+      ),
     }
   )
   .get(

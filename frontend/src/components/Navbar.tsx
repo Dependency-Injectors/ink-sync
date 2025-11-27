@@ -36,9 +36,12 @@ const Navbar = () => {
             <NavItem to="/draw">Draw</NavItem>
           </li>
           <li>
+            <NavItem to="/images">Images</NavItem>
+          </li>
+          <li>
             <NavItem to="/about">About</NavItem>
           </li>
-          
+
           <li>
             {user ? (
               <button
