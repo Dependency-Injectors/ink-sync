@@ -5,6 +5,9 @@ import { authRoutes } from "./routes/authRoute";
 import { healthRoute } from "./routes/healthRoute";
 import { imageRoutes } from "./routes/ImageRoute";
 import { socketRoute } from "./routes/socketRoute";
+import { userImageRoute } from "./routes/userImageRoute";
+import { usersRoute } from "./routes/usersRoute";
+
 
 const app = new Elysia()
   .use(cors())
@@ -12,6 +15,8 @@ const app = new Elysia()
   .use(authRoutes)
   .use(imageRoutes)
   .use(socketRoute)
+  .use(userImageRoute)
+  .use(usersRoute)
   .listen(process.env.PORT || 1337);
 
 console.log(

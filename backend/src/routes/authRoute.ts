@@ -1,8 +1,6 @@
 import jwt from "@elysiajs/jwt";
-import Elysia, { status, t } from "elysia";
+import Elysia, {  t } from "elysia";
 import { prisma } from "../db/db";
-import { CookieSchema } from "../types/cookieSchema";
-import { UserPlain } from "../../generated/prismabox/User";
 import { UserSchema } from "../types/authSchema";
 
 const authRoutes = new Elysia()
@@ -15,7 +13,7 @@ const authRoutes = new Elysia()
   )
   .post(
     "/register",
-    async ({ body }) => {
+    async ({ body, status }) => {
       try {
         const user = await prisma.user.findUnique({
           where: { email: body.email },
@@ -48,20 +46,20 @@ const authRoutes = new Elysia()
   )
   .post(
     "/login",
-    async ({ jwt, body, cookie: { auth } }) => {
+    async ({ jwt, body, cookie: { auth },status }) => {
       const user = await prisma.user.findUnique({
         where: { email: body.email },
       });
       console.log(body);
       if (!user) {
-        throw new Error("User not found");
+        return status(404, { error: "Invalid password or email" });
       }
       const isPasswordValid = await Bun.password.verify(
         body.password,
         user.password
       );
       if (!isPasswordValid) {
-        throw new Error("Invalid password");
+        return status(401, { error: "Invalid password or email" });
       }
 
       const value = await jwt.sign({ id: user.id, email: user.email });
@@ -83,36 +81,13 @@ const authRoutes = new Elysia()
     }
   )
   .get(
-    "/users",
-    async ({ jwt, cookie: { auth } }) => {
-      if (!auth) throw new Error("No auth cookie");
-      const token = await jwt.verify(auth.value);
-      if (!token) throw new Error("Invalid token");
-      const users = await prisma.user.findMany();
-      const usersWithoutPasswords = users.map((user) => ({
-        id: user.id,
-        email: user.email,
-      }));
-      return usersWithoutPasswords;
-    },
-    {
-      cookie: CookieSchema,
-      response: t.Array(
-        t.Object({
-          id: t.String(),
-          email: t.String(),
-        })
-      ),
-    }
-  )
-  .get(
     "/logout",
     ({ cookie: { auth } }) => {
       auth?.remove();
       return "Logged out successfully";
     },
     {
-      cookie: CookieSchema,
+      // cookie: CookieSchema,
     }
   );
 //
