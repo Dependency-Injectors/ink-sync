@@ -46,7 +46,7 @@ const authRoutes = new Elysia()
   )
   .post(
     "/login",
-    async ({ jwt, body, cookie: { auth },status }) => {
+    async ({ jwt, body, cookie: { auth }, status }) => {
       const user = await prisma.user.findUnique({
         where: { email: body.email },
       });
