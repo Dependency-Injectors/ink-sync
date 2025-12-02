@@ -1,5 +1,5 @@
 import jwt from "@elysiajs/jwt";
-import Elysia, {  t } from "elysia";
+import Elysia, { t } from "elysia";
 import { prisma } from "../db/db";
 import { UserSchema } from "../types/authSchema";
 
