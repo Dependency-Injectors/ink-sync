@@ -25,7 +25,7 @@ const CreateImageForm = ({
           min={400}
           max={2000}
           required
-          className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500 disabled:opacity-50 focus:invalid:ring-2 focus:invalid:ring-red-500"
+          className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrol-500 disabled:opacity-50 focus:invalid:ring-red-500"
         />
       </div>
       <div className="grid gap-2">

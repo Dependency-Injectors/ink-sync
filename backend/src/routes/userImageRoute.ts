@@ -1,6 +1,5 @@
 import Elysia, { t } from "elysia";
 import { prisma } from "../db/db";
-import jwt from "@elysiajs/jwt";
 import { authMiddleware } from "../middleware/auth";
 
 export const userImageRoute = new Elysia().group("/imageUser", (app) =>
@@ -8,18 +7,20 @@ export const userImageRoute = new Elysia().group("/imageUser", (app) =>
     .use(authMiddleware)
     .post(
       "/",
-      async ({ body: { userEmail, imageId }, user }) => {
+      async ({ body: { userEmail, imageId }, user, status }) => {
         const userImage = await prisma.userImage.findFirst({
           where: { UserId: user.id, ImageId: imageId },
         });
         if (!userImage) {
-          throw new Error("Image not found or not co-owned by user");
+          return status(404, {
+            error: "Image not found or not co-owned by user",
+          });
         }
         const coOwner = await prisma.user.findUnique({
           where: { email: userEmail },
         });
         if (!coOwner) {
-          throw new Error("Co-owner user not found");
+          return status(404, { error: "Co-owner user not found" });
         }
         const newUserImage = await prisma.userImage.create({
           data: {
@@ -38,18 +39,20 @@ export const userImageRoute = new Elysia().group("/imageUser", (app) =>
     )
     .delete(
       "/",
-      async ({ body: { imageId, userEmail }, user }) => {
+      async ({ body: { imageId, userEmail }, user, status }) => {
         const userImage = await prisma.userImage.findFirst({
           where: { UserId: user.id, ImageId: imageId },
         });
         if (!userImage) {
-          throw new Error("Image not found or not co-owned by user");
+          return status(404, {
+            error: "Image not found or not co-owned by user",
+          });
         }
         const coOwner = await prisma.user.findUnique({
           where: { email: userEmail },
         });
         if (!coOwner) {
-          throw new Error("Co-owner user not found");
+          return status(404, { error: "Co-owner user not found" });
         }
         const deletedUserImage = await prisma.userImage.deleteMany({
           where: {

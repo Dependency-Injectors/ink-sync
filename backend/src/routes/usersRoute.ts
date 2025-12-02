@@ -5,8 +5,7 @@ import { prisma } from "../db/db";
 
 export const usersRoute = new Elysia().use(authMiddleware).get(
   "/users",
-  async ({ jwt, cookie: { auth } }) => {
-    const token = await jwt.verify(auth.value);
+  async () => {
     const users = await prisma.user.findMany();
     const usersWithoutPasswords = users.map((user) => ({
       id: user.id,

@@ -22,6 +22,7 @@ const UserListButton = ({
 
   const ref = useRef<HTMLDivElement>(null);
 
+  // Fetch users who have access to the image, refetch when visible changes
   useEffect(() => {
     const fetchImageUsers = async () => {
       try {
@@ -103,9 +104,11 @@ const UserListButton = ({
                 <li key={user.id} className="flex items-center justify-between">
                   <span className="text-white text-sm">{user.email}</span>
                   <button
-                    {...(user.isCoowner
-                      ? { onClick: handleRemoveUser(user) }
-                      : { onClick: handleAddUser(user) })}
+                    onClick={
+                      user.isCoowner
+                        ? handleRemoveUser(user)
+                        : handleAddUser(user)
+                    }
                     className="bg-petrol-500 text-white text-xs px-3 py-1 rounded hover:bg-petrol-400 transition"
                   >
                     {user.isCoowner ? "Remove" : "Add"}

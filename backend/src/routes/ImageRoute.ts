@@ -16,7 +16,13 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
       });
       return userImages.map((userImage) => userImage.image);
     })
-    .get("/users/:imageId", async ({ params }) => {
+    .get("/users/:imageId", async ({ params, user, status }) => {
+      const userImage = await prisma.userImage.findFirst({
+        where: { ImageId: params.imageId, UserId: user.id },
+      });
+      if (!userImage) {
+        return status(404, { error: "Image not found or not owned by user" });
+      }
       const userImages = await prisma.userImage.findMany({
         where: { ImageId: params.imageId },
         include: { user: true },
