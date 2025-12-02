@@ -8,9 +8,15 @@ import { socketRoute } from "./routes/socketRoute";
 import { userImageRoute } from "./routes/userImageRoute";
 import { usersRoute } from "./routes/usersRoute";
 
-
 const app = new Elysia()
-  .use(cors())
+  .use(
+    cors({
+      origin: true,
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+  )
   .use(healthRoute)
   .use(authRoutes)
   .use(imageRoutes)
