@@ -36,10 +36,10 @@ export const socketRoute = new Elysia()
       const token = await jwt.verify(auth.value as string);
 
       if (!token) throw new Error("Unauthorized");
-      store.userId = token.id;
+      // store.userId = token.id;
     },
     open: (ws) => {
-      console.log(ws.data.store.userId);
+      // console.log(ws.data.store.userId);
       const { id } = ws.data.query;
       drawingClients.set(id, ws);
       console.log(

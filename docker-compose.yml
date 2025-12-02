@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ink-sync-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inksync
+    ports:
+      - "5433:5432"  # Exposed for local development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ink-sync-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/inksync
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      PORT: 3000
+    ports:
+      - "3001:3000" # Exposed for local development on 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+        VITE_WS_URL: ws://localhost:3000
+    container_name: ink-sync-frontend
+    ports:
+      - "81:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
