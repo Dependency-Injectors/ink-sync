@@ -3,9 +3,12 @@ import NavItem from "./NavItem";
 import { useCurrentUser } from "../lib/useCurrentUser";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
+import { useTheme } from "../lib/useTheme";
+import { BiMoon, BiSun } from "react-icons/bi";
 
 const Navbar = () => {
   const { user, setUser } = useCurrentUser();
+  const { theme, setTheme } = useTheme();
 
   const logout = async () => {
     try {
@@ -23,8 +26,8 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-gray-900 border-b border-petrol-500">
-      <nav className="flex justify-between items-center p-4 text-white max-w-[1200px] mx-auto">
+    <div className="bg-gray-300 dark:bg-gray-900 border-b border-petrol-500">
+      <nav className="flex justify-between items-center p-4 text-gray-900 dark:text-gray-300 max-w-[1200px] mx-auto">
         <div>
           <Link to="/">Ink-Sync</Link>
         </div>
@@ -55,6 +58,9 @@ const Navbar = () => {
             )}
           </li>
         </ul>
+        <button onClick={() => setTheme()}>
+          {theme === "light" ? (<BiMoon />) : (<BiSun />)}
+        </button>
       </nav>
     </div>
   );

@@ -32,6 +32,30 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
         email: userImage.user.email,
       }));
     })
+    .get("/available-users/:imageId", async ({ params, user, status }) => {
+      const userImage = await prisma.userImage.findFirst({
+        where: { ImageId: params.imageId, UserId: user.id },
+      });
+      if (!userImage) {
+        return status(404, { error: "Image not found or not owned by user" });
+      }
+      const allUsers = await prisma.user.findMany();
+      const assignedUserImages = await prisma.userImage.findMany({
+        where: { ImageId: params.imageId },
+      });
+      const assignedUserIds = assignedUserImages.map(
+        (userImage) => userImage.UserId
+      );
+      const availableUsers = allUsers.map((u) => ({
+        ...u,
+        hasAccess: assignedUserIds.includes(u.id),
+      }));
+      return availableUsers.map((user) => ({
+        id: user.id,
+        email: user.email,
+        hasAccess: user.hasAccess,
+      }));
+    })
     .get("/:id", async ({ params, user, status }) => {
       const userImage = await prisma.userImage.findFirst({
         where: { UserId: user.id, ImageId: params.id },

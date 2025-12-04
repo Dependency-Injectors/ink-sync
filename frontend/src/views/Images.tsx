@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
-import type { User } from "../lib/types";
 import ImageCard from "../components/ui/ImageCard";
 import CreateImageForm from "../components/ui/CreateImageForm";
 import { AxiosError } from "axios";
@@ -18,7 +17,6 @@ export type Image = {
 
 const Images = () => {
   const [images, setImages] = useState<Image[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const { setUser } = useCurrentUser();
   const navigate = useNavigate();
   useEffect(() => {
@@ -38,24 +36,10 @@ const Images = () => {
         console.error("Error fetching images:", error);
       }
     };
-    const fetchUsers = async () => {
-      try {
-        const res = await axiosInstance.get("/users");
-        setUsers(res.data);
-      } catch (error) {
-        if (error instanceof AxiosError && error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in.");
-          setUser(null);
-          navigate("/login");
-          return;
-        }
-        toast.error("Error fetching users");
-        console.error("Error fetching users:", error);
-      }
-    };
+    
     fetchImages();
-    fetchUsers();
   }, [navigate, setUser]);
+
   const createImage = async (formData: FormData) => {
     try {
       const width = Number(formData.get("width"));
@@ -80,7 +64,7 @@ const Images = () => {
           <CreateImageForm createImage={createImage} />
         </li>
         {images.map((image) => (
-          <ImageCard key={image.id} image={image} users={users} />
+          <ImageCard key={image.id} image={image} />
         ))}
       </ul>
     </div>
