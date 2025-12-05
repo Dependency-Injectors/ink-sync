@@ -6,7 +6,7 @@ import Login from "../views/(website)/Login";
 import Home from "../views/(website)/Home";
 import DrawLayout from "../views/(application)/layout";
 import Register from "../views/(website)/Register";
-import Draw from "../views/(application)/Draw";
+import Draw from "../views/(application)/draw/Draw";
 import DrawingProvider from '../components/DrawingProvider';
 import { createElement } from 'react';
 import Images from "../views/Images";
@@ -30,7 +30,10 @@ export const router = createBrowserRouter([
         path: "draw",
         element: createElement(DrawingProvider, { children: createElement(DrawLayout) }),
         children: [
-          { index: true, Component: Draw },
+          {
+            path: ":id",
+            Component: Draw,
+          },
         ],
       },
     ],
