@@ -5,9 +5,9 @@ import { useTheme } from "./lib/useTheme";
 const App = () => {
   const { theme } = useTheme();
   return (
-    <body data-theme={theme}>
+    <div data-theme={theme}>
       <RouterProvider router={router} />
-    </body>
+    </div>
   );
 };
 

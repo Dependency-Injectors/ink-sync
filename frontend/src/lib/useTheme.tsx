@@ -11,7 +11,9 @@ interface ThemeState {
 export const useTheme = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: "dark",
+      theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light",
       setTheme: () =>
         set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
     }),

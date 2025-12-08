@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Particle } from "../../utils/Particles";
+import { useTheme } from "../lib/useTheme";
 const Hero = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,7 +38,7 @@ const Hero = () => {
       // draw and update particles
       for (const p of particles) {
         p.update();
-        p.draw();
+        p.draw(theme === "dark" ? "#33bdd533" : "#007bff");
       }
 
       rafRef.current = requestAnimationFrame(loop);
@@ -48,21 +50,21 @@ const Hero = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, []);
+  }, [theme]);
 
   return (
-    <div className="  flex flex-col justify-center items-center h-screen relative">
+    <div className="flex flex-col justify-center items-center h-screen relative">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
         <canvas
           ref={canvasRef}
           className="absolute top-0 left-0 w-full h-full z-0"
         />
       </div>
-      <div className="flex z-30 flex-col backdrop-blur-md bg-white/10  border-2 border-cyan-400 rounded-2xl px-8 py-12 shadow-lg shadow-cyan-400/20 items-center justify-center gap-6">
+      <div className="flex z-30 flex-col backdrop-blur-md bg-black/10 dark:bg-white/10  border-2 border-cyan-400 rounded-2xl px-8 py-12 shadow-lg shadow-cyan-400/20 items-center justify-center gap-6">
         <h2 className="text-4xl md:text-6xl font-bold text-center text-shadow-md text-shadow-cyan-500">
           Ink Sync
         </h2>
-        <p className="text-gray-200 text-xl">
+        <p className="dark:text-gray-200 text-xl">
           Your <span className="text-[#33bdd5] ">Gateway</span> to Draw as a
           Team
         </p>

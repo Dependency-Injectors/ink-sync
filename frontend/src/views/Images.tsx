@@ -60,7 +60,7 @@ const Images = () => {
     <div className="max-w-[1200px] mx-auto my-8 px-4">
       <h1 className="text-2xl font-bold mb-4">Images</h1>
       <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 ">
-        <li className="p-4 bg-gray-800 rounded-lg shadow-md text-white flex flex-col gap-2 border-2 border-petrol-600 hover:shadow-petrol-400 hover:shadow-lg transition-shadow">
+        <li className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-gray-500 dark:rounded-lg dark:text-white  flex-col gap-2 border-2 border-petrol-600 hover:shadow-black/30 dark:hover:shadow-petrol-400 hover:shadow-lg transition-shadow">
           <CreateImageForm createImage={createImage} />
         </li>
         {images.map((image) => (
