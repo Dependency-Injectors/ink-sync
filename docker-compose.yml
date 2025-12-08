@@ -6,8 +6,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: inksync
-    # ports:
-    #   - "5433:5432"  # Exposed for local development
+    ports:
+      - "5434:5432"  # Exposed for local development
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -36,8 +36,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:3000
-        VITE_WS_URL: ws://localhost:3000
+        # Frontend is served to the browser on host:81; the backend is mapped to host port 3001
+        VITE_API_URL: http://localhost:3001
+        VITE_WS_URL: ws://localhost:3001
     container_name: ink-sync-frontend
     ports:
       - "81:80"
