@@ -42,9 +42,9 @@ export class Particle {
     }
   }
 
-  draw() {
+  draw(color: string) {
     this.ctx.beginPath();
-    this.ctx.fillStyle = "#33bdd533";
+    this.ctx.fillStyle = color ;
     this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     this.ctx.fill();
   }
