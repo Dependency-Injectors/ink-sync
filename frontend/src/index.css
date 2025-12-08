@@ -26,3 +26,5 @@
 .animate-shadow-pulse {
   animation: shadow-pulse 3s ease-in-out infinite;
 }
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

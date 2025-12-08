@@ -4,19 +4,11 @@ import type { User } from "../lib/types";
 import { PiPlus } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import { useRef } from "react";
-import { useCurrentUser } from "../lib/useCurrentUser";
 
 interface UserWithCoowner extends User {
-  isCoowner?: boolean;
+  hasAccess?: boolean;
 }
-const UserListButton = ({
-  users,
-  imageId,
-}: {
-  users: User[];
-  imageId: string;
-}) => {
-  const { user } = useCurrentUser();
+const UserListButton = ({ imageId }: { imageId: string }) => {
   const [visible, setVisible] = useState(false);
   const [imageUsers, setImageUsers] = useState<UserWithCoowner[]>([]);
 
@@ -26,16 +18,11 @@ const UserListButton = ({
   useEffect(() => {
     const fetchImageUsers = async () => {
       try {
-        const res = await axiosInstance.get(`/images/users/${imageId}`);
-        const filteredUsers = users
-          .filter((u) => user?.email !== u.email)
-          .map((u) => {
-            const isCoowner: boolean = res.data.some(
-              (iu: User) => iu.id === u.id,
-            );
-            return { ...u, isCoowner };
-          });
-        setImageUsers(filteredUsers);
+        const res = await axiosInstance.get(
+          `/images/available-users/${imageId}`,
+        );
+
+        setImageUsers(res.data);
       } catch (error) {
         toast.error("Error fetching image users");
         console.error("Error fetching image users:", error);
@@ -54,7 +41,7 @@ const UserListButton = ({
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [imageId, user?.email, users, visible]);
+  }, [imageId, visible]);
 
   const handleAddUser = (user: User) => async () => {
     try {
@@ -105,13 +92,13 @@ const UserListButton = ({
                   <span className="text-white text-sm">{user.email}</span>
                   <button
                     onClick={
-                      user.isCoowner
+                      user.hasAccess
                         ? handleRemoveUser(user)
                         : handleAddUser(user)
                     }
                     className="bg-petrol-500 text-white text-xs px-3 py-1 rounded hover:bg-petrol-400 transition"
                   >
-                    {user.isCoowner ? "Remove" : "Add"}
+                    {user.hasAccess ? "Remove" : "Add"}
                   </button>
                 </li>
               ))}
