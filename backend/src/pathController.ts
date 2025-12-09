@@ -24,7 +24,7 @@ export const createPath = async (
     },
   });
 
-  const point = await prisma.point.create({
+  await prisma.point.create({
     data: {
       x: drawEvent.x,
       y: drawEvent.y,
@@ -34,7 +34,7 @@ export const createPath = async (
 };
 
 export const addPointToPath = async (drawEvent: DrawEvent) => {
-  const point = await prisma.point.create({
+  await prisma.point.create({
     data: {
       x: drawEvent.x,
       y: drawEvent.y,
@@ -48,7 +48,17 @@ export const getPathsByImageId = async (
   imageId: string,
   userId: string
 ): Promise<
-  { success: true; paths: any[] } | { success: false; message: string }
+  | {
+      success: true;
+      paths: {
+        strokeId: string;
+        userId: string;
+        points: { x: number; y: number }[];
+        color: string;
+        size: number;
+      }[];
+    }
+  | { success: false; message: string }
 > => {
   const userImage = await prisma.userImage.findFirst({
     where: { UserId: userId, ImageId: imageId },
@@ -67,7 +77,6 @@ export const getPathsByImageId = async (
       },
     },
   });
-  console.log(paths);
   const formattedPaths = paths.map((path) => {
     return {
       points: path.points,

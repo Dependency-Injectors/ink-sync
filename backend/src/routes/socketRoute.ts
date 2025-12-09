@@ -118,7 +118,7 @@ export const socketRoute = new Elysia()
         `Client disconnected from image ${imageId}. Room size: ${room.size}`
       );
     },
-    message(ws, message) {
+    async message(ws, message) {
       const imageId =
         (ws.data.store as any).imageId ||
         ws.data.query.imageId ||
@@ -158,12 +158,10 @@ export const socketRoute = new Elysia()
         //     .join(", ")}`
         // );
 
-        // TODO: Store completed strokes in database
         if (drawEvent.type === "end" || drawEvent.type === "draw") {
-          addPointToPath(drawEvent);
-          // await saveStroke(drawEvent.strokeId, drawEvent);
+          await addPointToPath(drawEvent);
         } else if (drawEvent.type === "start") {
-          createPath(drawEvent, imageId); // TODO: get imageId from somewhere
+          await createPath(drawEvent, imageId); 
         }
       } catch (error) {
         console.error("Invalid drawing event:", error, "Message:", message);

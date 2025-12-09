@@ -19,7 +19,6 @@ interface ActiveStroke {
   points: { x: number; y: number }[];
   color: string;
   size: number;
-  // lastPoint?: { x: number; y: number };
 }
 
 interface ImageData {
@@ -180,7 +179,6 @@ const Draw = () => {
           });
           activeStrokes.current = tempMap;
           redrawCanvas();
-          // activeStrokes.current = data.paths
           return;
         }
 
