@@ -1,7 +1,12 @@
 import jwt from "@elysiajs/jwt";
 import { Elysia, t } from "elysia";
 import { CookieSchema } from "../types/cookieSchema";
-import { addPointToPath, createPath, type StartDrawEvent } from "../pathController";
+import {
+  addPointToPath,
+  createPath,
+  getPathsByImageId,
+  type StartDrawEvent,
+} from "../pathController";
 import { prisma } from "../db/db";
 
 export type DrawEvent =
@@ -55,8 +60,11 @@ export const socketRoute = new Elysia()
       (store as any).userId = token.id;
       (store as any).imageId = imageId;
     },
-    open: (ws) => {
-      const imageId = (ws.data.store as any).imageId || ws.data.query.imageId || ws.data.query.id;
+    open: async (ws) => {
+      const imageId =
+        (ws.data.store as any).imageId ||
+        ws.data.query.imageId ||
+        ws.data.query.id;
 
       if (!imageId) {
         ws.close();
@@ -73,17 +81,31 @@ export const socketRoute = new Elysia()
       const total = room.size;
       console.log(`Client connected to image ${imageId}. Room size: ${total}`);
 
+      const res = await getPathsByImageId(
+        imageId,
+        (ws.data.store as any).userId
+      );
+
+      if (!res.success) {
+        ws.close(4001, "Unauthorized: " + res.message);
+        return;
+      }
+
       ws.send(
         JSON.stringify({
           type: "connected",
           imageId,
+          paths: res.paths,
           connectedCount: total,
           time: Date.now(),
         })
       );
     },
     close(ws) {
-      const imageId = (ws.data.store as any).imageId || ws.data.query.imageId || ws.data.query.id;
+      const imageId =
+        (ws.data.store as any).imageId ||
+        ws.data.query.imageId ||
+        ws.data.query.id;
       if (!imageId) return;
 
       const room = drawingRooms.get(imageId);
@@ -92,10 +114,15 @@ export const socketRoute = new Elysia()
       room.delete(ws);
       if (room.size === 0) drawingRooms.delete(imageId);
 
-      console.log(`Client disconnected from image ${imageId}. Room size: ${room.size}`);
+      console.log(
+        `Client disconnected from image ${imageId}. Room size: ${room.size}`
+      );
     },
     message(ws, message) {
-      const imageId = (ws.data.store as any).imageId || ws.data.query.imageId || ws.data.query.id;
+      const imageId =
+        (ws.data.store as any).imageId ||
+        ws.data.query.imageId ||
+        ws.data.query.id;
       if (!imageId) return;
 
       try {
@@ -136,7 +163,7 @@ export const socketRoute = new Elysia()
           addPointToPath(drawEvent);
           // await saveStroke(drawEvent.strokeId, drawEvent);
         } else if (drawEvent.type === "start") {
-          createPath(drawEvent, imageId); // TODO: get imageId from somewhere 
+          createPath(drawEvent, imageId); // TODO: get imageId from somewhere
         }
       } catch (error) {
         console.error("Invalid drawing event:", error, "Message:", message);

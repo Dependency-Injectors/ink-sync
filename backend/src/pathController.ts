@@ -43,7 +43,6 @@ export const addPointToPath = async (drawEvent: DrawEvent) => {
   });
 };
 
-
 // Retrieve all paths and their points for a given image and user also verifying user ownership
 export const getPathsByImageId = async (
   imageId: string,
@@ -59,8 +58,24 @@ export const getPathsByImageId = async (
   }
   const paths = await prisma.path.findMany({
     where: { ImageId: imageId },
-    include: { points: true },
+    include: {
+      points: {
+        select: {
+          x: true,
+          y: true,
+        },
+      },
+    },
   });
   console.log(paths);
-  return { success: true, paths };
+  const formattedPaths = paths.map((path) => {
+    return {
+      points: path.points,
+      color: path.color,
+      size: path.strokeWidth,
+      strokeId: path.id,
+      userId,
+    };
+  });
+  return { success: true, paths: formattedPaths };
 };
