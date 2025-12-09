@@ -50,7 +50,6 @@ const authRoutes = new Elysia()
       const user = await prisma.user.findUnique({
         where: { email: body.email },
       });
-      console.log(body);
       if (!user) {
         return status(404, { error: "Invalid password or email" });
       }
