@@ -2,6 +2,7 @@ import jwt from "@elysiajs/jwt";
 import { Elysia, t } from "elysia";
 import { CookieSchema } from "../types/cookieSchema";
 import { addPointToPath, createPath, type StartDrawEvent } from "../pathController";
+import { prisma } from "../db/db";
 
 export type DrawEvent =
   | {
@@ -13,7 +14,7 @@ export type DrawEvent =
     }
   | StartDrawEvent;
 
-const drawingClients = new Map<string, any>();
+const drawingRooms = new Map<string, Set<any>>();
 
 export const socketRoute = new Elysia()
   .use(
@@ -26,47 +27,76 @@ export const socketRoute = new Elysia()
   .ws("/draw", {
     cookie: CookieSchema,
     query: t.Object({
-      id: t.String(),
+      imageId: t.Optional(t.String()),
+      id: t.Optional(t.String()),
     }),
     store: t.Object({
       userId: t.Optional(t.String()),
+      imageId: t.Optional(t.String()),
     }),
-    beforeHandle: async ({ jwt, cookie: { auth }, store }) => {
+    beforeHandle: async ({ jwt, cookie: { auth }, store, query }) => {
       if (!auth) throw new Error("Unauthorized"); // TODO: handle errors better
 
-      const token = await jwt.verify(auth.value as string);
+      const token = (await jwt.verify(auth.value as string)) as {
+        id: string;
+        email?: string;
+      };
 
       if (!token) throw new Error("Unauthorized"); // TODO: handle errors better
-      // store.userId = token.id;
+
+      const imageId = (query as any).imageId || (query as any).id;
+      if (!imageId) throw new Error("Missing imageId in query");
+
+      const userHasImage = await prisma.userImage.findFirst({
+        where: { ImageId: imageId, UserId: token.id },
+      });
+      if (!userHasImage) throw new Error("Unauthorized: no access to image");
+
+      (store as any).userId = token.id;
+      (store as any).imageId = imageId;
     },
     open: (ws) => {
-      // console.log(ws.data.store.userId);
-      const { id } = ws.data.query;
-      drawingClients.set(id, ws);
-      console.log(
-        `Drawing client ${id} connected. Total drawing clients: ${drawingClients.size}`
-      );
+      const imageId = (ws.data.store as any).imageId || ws.data.query.imageId || ws.data.query.id;
+
+      if (!imageId) {
+        ws.close();
+        return;
+      }
+
+      let room = drawingRooms.get(imageId);
+      if (!room) {
+        room = new Set();
+        drawingRooms.set(imageId, room);
+      }
+      room.add(ws);
+
+      const total = room.size;
+      console.log(`Client connected to image ${imageId}. Room size: ${total}`);
 
       ws.send(
         JSON.stringify({
           type: "connected",
-          id,
-          connectedCount: drawingClients.size,
+          imageId,
+          connectedCount: total,
           time: Date.now(),
         })
       );
     },
     close(ws) {
-      const { id } = ws.data.query;
-      if (drawingClients.get(id) === ws) {
-        drawingClients.delete(id);
-        console.log(
-          `Drawing client ${id} disconnected. Total drawing clients: ${drawingClients.size}`
-        );
-      }
+      const imageId = (ws.data.store as any).imageId || ws.data.query.imageId || ws.data.query.id;
+      if (!imageId) return;
+
+      const room = drawingRooms.get(imageId);
+      if (!room) return;
+
+      room.delete(ws);
+      if (room.size === 0) drawingRooms.delete(imageId);
+
+      console.log(`Client disconnected from image ${imageId}. Room size: ${room.size}`);
     },
     message(ws, message) {
-      const { id } = ws.data.query;
+      const imageId = (ws.data.store as any).imageId || ws.data.query.imageId || ws.data.query.id;
+      if (!imageId) return;
 
       try {
         const drawEvent: DrawEvent = message as DrawEvent;
@@ -74,35 +104,39 @@ export const socketRoute = new Elysia()
           throw new Error("Invalid draw event structure"); // TODO: handle errors better
         }
 
-        // Convert back to string for broadcasting
+        const senderId = (ws.data.store as any).userId as string | undefined;
+        if (senderId && drawEvent.userId !== senderId) {
+          drawEvent.userId = senderId;
+        }
+
         const messageStr = JSON.stringify(drawEvent);
 
-        // Broadcast drawing event to all other clients (not sender)
-        drawingClients.forEach((client, clientId) => {
-          // TODO: i seem to remember there being a better way of doing this
-          if (clientId !== id && client.readyState === 1) {
-            console.log(`Broadcasting to client ${clientId}: ${messageStr}`);
+        const room = drawingRooms.get(imageId);
+        if (!room) return;
+
+        room.forEach((client) => {
+          if (client !== ws && client.readyState === 1) {
             client.send(messageStr);
           }
         });
 
         console.log(
-          `Drawing event from ${id}: ${drawEvent.type} stroke ${drawEvent.strokeId} at (${drawEvent.x}, ${drawEvent.y})`
+          `Drawing event in image ${imageId}: ${drawEvent.type} stroke ${drawEvent.strokeId} by ${drawEvent.userId} at (${drawEvent.x}, ${drawEvent.y})`
         );
-        console.log(
-          `Total clients: ${drawingClients.size}, Broadcasting to: ${Array.from(
-            drawingClients.keys()
-          )
-            .filter((cId) => cId !== id)
-            .join(", ")}`
-        );
+        // console.log(
+        //   `Total clients: ${drawingClients.size}, Broadcasting to: ${Array.from(
+        //     drawingClients.keys()
+        //   )
+        //     .filter((cId) => cId !== id)
+        //     .join(", ")}`
+        // );
 
         // TODO: Store completed strokes in database
         if (drawEvent.type === "end" || drawEvent.type === "draw") {
           addPointToPath(drawEvent);
           // await saveStroke(drawEvent.strokeId, drawEvent);
         } else if (drawEvent.type === "start") {
-          //createPath(drawEvent, imageId); // TODO: get imageId from somewhere 
+          createPath(drawEvent, imageId); // TODO: get imageId from somewhere 
         }
       } catch (error) {
         console.error("Invalid drawing event:", error, "Message:", message);
