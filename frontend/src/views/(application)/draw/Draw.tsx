@@ -19,7 +19,6 @@ interface ActiveStroke {
   points: { x: number; y: number }[];
   color: string;
   size: number;
-  lastPoint?: { x: number; y: number };
 }
 
 interface ImageData {
@@ -84,6 +83,33 @@ const Draw = () => {
     fetchImage();
   }, [imageId]);
 
+    const redrawCanvas = useCallback(() => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!canvas || !ctx) return;
+
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      // Redraw all active strokes
+      activeStrokes.current.forEach((stroke) => {
+        if (stroke.points.length < 2) return;
+
+        ctx.strokeStyle = stroke.color;
+        ctx.lineWidth = stroke.size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+
+        ctx.stroke();
+      });
+    }, []);
+
   useEffect(() => {
     const handleDrawEvent = (event: DrawEvent) => {
       const strokes = activeStrokes.current;
@@ -134,7 +160,8 @@ const Draw = () => {
     const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
     const websocket = new WebSocket(`${wsUrl}/draw?imageId=${imageId}`);
     
-    websocket.onopen = () => {
+    websocket.onopen = (event: Event) => {
+      console.log('WebSocket connection opened:', event);
       console.log('Connected to drawing server for image:', imageId);
       setWs(websocket);
     };
@@ -146,6 +173,12 @@ const Draw = () => {
 
         if (data.type === 'connected') {
           console.log('Connection confirmed, connected users:', data.connectedCount);
+          const tempMap = new Map<string, ActiveStroke>();
+          data.paths.forEach((stroke: ActiveStroke) => {
+            tempMap.set(stroke.strokeId, stroke);
+          });
+          activeStrokes.current = tempMap;
+          redrawCanvas();
           return;
         }
 
@@ -158,35 +191,10 @@ const Draw = () => {
     };
 
     return () => websocket.close();
-  }, [imageId, user, brushColor, brushSize]);
+  }, [imageId, user, brushColor, brushSize, redrawCanvas]);
 
   // Resize canvas to match image size
-  const redrawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, rect.width, rect.height);
-    
-    // Redraw all active strokes
-    activeStrokes.current.forEach(stroke => {
-      if (stroke.points.length < 2) return;
-      
-      ctx.strokeStyle = stroke.color;
-      ctx.lineWidth = stroke.size;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-      
-      for (let i = 1; i < stroke.points.length; i++) {
-        ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
-      }
-      
-      ctx.stroke();
-    });
-  }, []);
 
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
