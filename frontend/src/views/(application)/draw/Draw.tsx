@@ -129,10 +129,13 @@ const Draw = () => {
       });
     };
   
-    const websocket = new WebSocket(`ws://localhost:1337/draw?id=${user}`);
+    if (!imageId) return; // Don't connect if no imageId
+    
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
+    const websocket = new WebSocket(`${wsUrl}/draw?imageId=${imageId}`);
     
     websocket.onopen = () => {
-      console.log('Connected to drawing server');
+      console.log('Connected to drawing server for image:', imageId);
       setWs(websocket);
     };
 
@@ -155,7 +158,7 @@ const Draw = () => {
     };
 
     return () => websocket.close();
-  }, [user, brushColor, brushSize]);
+  }, [imageId, user, brushColor, brushSize]);
 
   // Resize canvas to match image size
   const redrawCanvas = useCallback(() => {
