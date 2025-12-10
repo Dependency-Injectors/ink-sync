@@ -1,6 +1,7 @@
 import type { Image } from "../../views/Images";
 import UserListButton from "../UserListButton";
 import { BiDoorOpen } from "react-icons/bi";
+import { Link } from "react-router";
 
 const ImageCard = ({ image }: { image: Image }) => {
   return (
@@ -16,12 +17,12 @@ const ImageCard = ({ image }: { image: Image }) => {
         Last edited: {new Date(image.updatedAt).toLocaleString()}
       </div>
       <div className="flex justify-between items-center mt-auto">
-        <a
-          href={`/draw/${image.id}`}
+        <Link
+          to={`/draw/${image.id}`}
           className="text-blue-500 hover:text-blue-700 font-medium flex items-center dark:text-petrol-400 dark:hover:text-petrol-200"
         >
           Join Room <BiDoorOpen size={20} className="inline-block ml-1 " />
-        </a>
+        </Link>
 
         <UserListButton imageId={image.id} />
       </div>
