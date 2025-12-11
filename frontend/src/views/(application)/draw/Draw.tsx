@@ -237,7 +237,7 @@ const Draw = () => {
             x,
             y,
             strokeId,
-            userId: user, /// Not used currently might be useful later also currently required in backend
+            userId: user, // Not used currently might be useful later also currently required in backend
           };
 
     console.log("Sending draw event:", message);
@@ -370,14 +370,14 @@ const Draw = () => {
   }
 
   return (
-    <div className=" overflow-auto ml-16 flex items-center justify-center min-h-screen">
+    <div className="overflow-auto ml-16 flex items-center justify-center min-h-screen">
       <div className="p-4">
-        <div className="">
+        <div className="max-w-[90vw] max-h-screen overflow-auto rounded-lg border-2 border-gray-600 shadow-2xl">
           <canvas
             ref={canvasRef}
             width={imageData.width}
             height={imageData.height}
-            className="cursor-crosshair bg-gray-800 block border-2 border-gray-600 rounded-lg overflow-scroll shadow-2xl max-w-[90vw] max-h-screen"
+            className="cursor-crosshair bg-gray-800 block rounded-lg"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

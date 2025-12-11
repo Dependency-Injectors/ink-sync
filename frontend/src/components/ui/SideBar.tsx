@@ -68,7 +68,7 @@ const SideBar: React.FC = () => {
           <div
             className={`${isExpanded ? "flex items-center space-x-3" : ""} p-2 rounded-lg bg-gray-700`}
           >
-            <FiEdit3 className="w-5 h-5 text-blue-400 shrink-0 flex items-center justify-center" />
+            <FiEdit3 className="w-5 h-5 text-blue-400 shrink-0" />
             {isExpanded && <span className="text-gray-300">Brush Tool</span>}
           </div>
 

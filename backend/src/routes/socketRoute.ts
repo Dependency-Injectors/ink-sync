@@ -127,9 +127,7 @@ export const socketRoute = new Elysia()
 
       try {
         const drawEvent: DrawEvent = message as DrawEvent;
-        if (!drawEvent.type 
-          // || !drawEvent.userId 
-          || !drawEvent.strokeId) {
+        if (!drawEvent.type || !drawEvent.userId || !drawEvent.strokeId) {
           throw new Error("Invalid draw event structure"); // TODO: handle errors better
         }
 
@@ -163,7 +161,7 @@ export const socketRoute = new Elysia()
         if (drawEvent.type === "end" || drawEvent.type === "draw") {
           await addPointToPath(drawEvent);
         } else if (drawEvent.type === "start") {
-          await createPath(drawEvent, imageId); 
+          await createPath(drawEvent, imageId);
         }
       } catch (error) {
         console.error("Invalid drawing event:", error, "Message:", message);
