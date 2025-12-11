@@ -127,7 +127,9 @@ export const socketRoute = new Elysia()
 
       try {
         const drawEvent: DrawEvent = message as DrawEvent;
-        if (!drawEvent.type || !drawEvent.userId || !drawEvent.strokeId) {
+        if (!drawEvent.type 
+          // || !drawEvent.userId 
+          || !drawEvent.strokeId) {
           throw new Error("Invalid draw event structure"); // TODO: handle errors better
         }
 

@@ -146,6 +146,10 @@ const Draw = () => {
         });
       } else {
         const stroke = strokes.get(event.strokeId);
+        if (!stroke) {
+          console.warn(`Stroke ${event.strokeId} not found for event`, event); // basic error handling
+        }
+
         if (stroke && stroke.points.length > 0) {
           const lastPoint = stroke.points[stroke.points.length - 1];
           stroke.points.push({ x: event.x, y: event.y });
@@ -217,15 +221,24 @@ const Draw = () => {
     y: number,
     strokeId: string,
   ) => {
-    const message = {
-      type,
-      x,
-      y,
-      userId: user,
-      strokeId,
-      color: brushColor,
-      size: brushSize,
-    };
+    const message =
+      type === "start"
+        ? {
+            type,
+            x,
+            y,
+            userId: user, // Not used currently might be useful later also currently required in backend
+            strokeId,
+            color: brushColor,
+            size: brushSize,
+          }
+        : {
+            type,
+            x,
+            y,
+            strokeId,
+            userId: user, /// Not used currently might be useful later also currently required in backend
+          };
 
     console.log("Sending draw event:", message);
 
@@ -364,7 +377,7 @@ const Draw = () => {
             ref={canvasRef}
             width={imageData.width}
             height={imageData.height}
-            className="cursor-crosshair bg-gray-800 block border-2 border-gray-600 rounded-lg overflow-scroll shadow-2xl max-w-[90vw] max-h-s"
+            className="cursor-crosshair bg-gray-800 block border-2 border-gray-600 rounded-lg overflow-scroll shadow-2xl max-w-[90vw] max-h-screen"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

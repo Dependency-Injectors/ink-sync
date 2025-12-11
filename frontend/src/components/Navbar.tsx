@@ -89,9 +89,6 @@ const Navbar = () => {
           </li>
           {user && (
             <>
-              {/* <li> */}
-                {/* <NavItem to="/draw">Draw</NavItem> */}
-              {/* </li> */}
               <li>
                 <NavItem to="/images">Images</NavItem>
               </li>

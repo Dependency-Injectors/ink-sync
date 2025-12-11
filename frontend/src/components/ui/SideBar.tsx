@@ -20,7 +20,7 @@ const SideBar: React.FC = () => {
   return (
     <div
       className={`fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 ${
-        isExpanded ? "w-64" : "w-18"
+        isExpanded ? "w-64" : ""
       }`}
     >
       <button
@@ -66,36 +66,39 @@ const SideBar: React.FC = () => {
           )}
 
           <div
-            className={`${isExpanded ? "flex items-center" : ""} space-x-3 p-2 rounded-lg bg-gray-700`}
+            className={`${isExpanded ? "flex items-center space-x-3" : ""} p-2 rounded-lg bg-gray-700`}
           >
-            <FiEdit3 className="w-5 h-5 text-blue-400 shrink-0" />
+            <FiEdit3 className="w-5 h-5 text-blue-400 shrink-0 flex items-center justify-center" />
             {isExpanded && <span className="text-gray-300">Brush Tool</span>}
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center space-x-3">
+            <div
+              className={`flex items-center space-x-3 ${isExpanded ? "" : "justify-center"}`}
+            >
               <IoColorPaletteOutline className="w-5 h-5 text-gray-400 shrink-0" />
               {isExpanded && (
                 <span className="text-sm text-gray-400">Color</span>
               )}
             </div>
 
-            <div className="space-y-2">
-              <div className="">
-                <input
-                  type="color"
-                  name=""
-                  id=""
-                  value={brushColor}
-                  onChange={(e) => setBrushColor(e.target.value)}
-                  className="aspect-square w-6 h-6 p-0 rounded border-2 border-gray-600 cursor-pointer bg-transparent"
-                />
-              </div>
+            <div
+              className={`p-2 rounded-lg flex items-center hover:bg-gray-700 transition-colors ${isExpanded ? "" : "justify-center"}`}
+            >
+              <input
+                type="color"
+                name="stroke-color"
+                value={brushColor}
+                onChange={(e) => setBrushColor(e.target.value)}
+                className="aspect-square w-6 h-6 p-0 rounded border-2 border-gray-600 cursor-pointer bg-transparent"
+              />
             </div>
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center space-x-3">
+            <div
+              className={`flex items-center space-x-3 ${isExpanded ? "" : "justify-center"}`}
+            >
               <FiSliders className="w-5 h-5 text-gray-400 shrink-0" />
               {isExpanded && (
                 <span className="text-sm text-gray-400">Size</span>
@@ -135,8 +138,6 @@ const SideBar: React.FC = () => {
               </div>
             )}
           </div>
-
-
         </div>
       </div>
     </div>
