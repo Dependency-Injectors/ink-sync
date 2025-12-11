@@ -87,13 +87,16 @@ const Navbar = () => {
           <li>
             <NavItem to="/">Home</NavItem>
           </li>
-        {user &&  (<><li>
-            <NavItem to="/draw">Draw</NavItem>
-          </li>
-          <li>
-            <NavItem to="/images">Images</NavItem>
-          </li>
-        </>)}
+          {user && (
+            <>
+              {/* <li> */}
+                {/* <NavItem to="/draw">Draw</NavItem> */}
+              {/* </li> */}
+              <li>
+                <NavItem to="/images">Images</NavItem>
+              </li>
+            </>
+          )}
           <li>
             <NavItem to="/about">About</NavItem>
           </li>
@@ -111,9 +114,10 @@ const Navbar = () => {
             )}
           </li>
           <li>
-            <button onClick={() => setTheme()}
+            <button
+              onClick={() => setTheme()}
               className="hover:text-petrol-400 cursor-pointer text-lg flex items-center justify-center"
-              >
+            >
               {theme === "light" ? <BiMoon /> : <BiSun />}
             </button>
           </li>
