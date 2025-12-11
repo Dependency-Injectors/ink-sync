@@ -161,7 +161,7 @@ export const socketRoute = new Elysia()
         if (drawEvent.type === "end" || drawEvent.type === "draw") {
           await addPointToPath(drawEvent);
         } else if (drawEvent.type === "start") {
-          await createPath(drawEvent, imageId); 
+          await createPath(drawEvent, imageId);
         }
       } catch (error) {
         console.error("Invalid drawing event:", error, "Message:", message);

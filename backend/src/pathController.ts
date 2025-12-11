@@ -68,11 +68,15 @@ export const getPathsByImageId = async (
   }
   const paths = await prisma.path.findMany({
     where: { ImageId: imageId },
+    orderBy: { createdAt: "asc" },
     include: {
       points: {
         select: {
           x: true,
           y: true,
+        },
+        orderBy: {
+          createdAt: "asc",
         },
       },
     },
