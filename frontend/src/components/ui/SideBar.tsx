@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router";
+import React, {  useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
 import {
   FiChevronLeft,
   FiChevronRight,
@@ -10,16 +10,38 @@ import {
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { useDrawing } from "../../hooks/useDrawing";
 import { IoIosImages } from "react-icons/io";
+import UserListButton from "../UserListButton";
 
 const SideBar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { brushColor, brushSize, setBrushColor, setBrushSize } = useDrawing();
+  const { id: imageId } = useParams<{ id: string }>();
+  const [recentColors, setRecentColors] = useState<string[]>([]);
+  const [alpha, setAlpha] = useState<number>(255);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // Update recent colors
+      setRecentColors((prevColors) => {
+        if (prevColors.includes(brushColor)) {
+          // Move to front if already exists
+          return [brushColor, ...prevColors.filter((c) => c !== brushColor)];
+        } else {
+          // Add to front, keep max 5
+          const updated = [brushColor, ...prevColors];
+          return updated.length > 5 ? updated.slice(0, 5) : updated;
+        }
+      });
+    }, 300); // 300ms is a good debounce for UI interactions
+
+    return () => clearTimeout(timeout);
+  }, [brushColor]); // Only brushColor as dependency
 
   const brushSizes = [1, 2, 4, 6, 8, 12, 16, 24];
 
   return (
     <div
-      className={`fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 ${
+      className={`overflow-y-scroll fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 ${
         isExpanded ? "w-64" : ""
       }`}
     >
@@ -88,11 +110,54 @@ const SideBar: React.FC = () => {
               <input
                 type="color"
                 name="stroke-color"
-                value={brushColor}
-                onChange={(e) => setBrushColor(e.target.value)}
+                value={brushColor.slice(0, 7)}
+                title={"Current Color: " + brushColor.slice(0, 7)}
+                onChange={(e) => {
+                  const newColor =
+                    e.target.value + alpha.toString(16).padStart(2, "0");
+                  setBrushColor(newColor);
+                }}
                 className="aspect-square w-6 h-6 p-0 rounded border-2 border-gray-600 cursor-pointer bg-transparent"
               />
             </div>
+            {isExpanded && recentColors.length > 0 && (
+              <div className="mt-2">
+                <span className="text-xs text-gray-500">Recent Colors:</span>
+                <div className="flex space-x-2 mt-1">
+                  {recentColors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setBrushColor(color)}
+                      className="w-6 h-6 rounded border-2 border-gray-600 p-0"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            {isExpanded && (
+              <div className="mt-2">
+                <label>Alpha</label>
+                <div className="">
+                  <input
+                    type="range"
+                    min="0"
+                    max="255"
+                    value={alpha}
+                    onChange={(e) => {
+                      const newAlpha = parseInt(e.target.value);
+                      setAlpha(newAlpha);
+                      setBrushColor(
+                        brushColor.slice(0, 7) +
+                          newAlpha.toString(16).padStart(2, "0"),
+                      );
+                    }}
+                    className=""
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -138,6 +203,9 @@ const SideBar: React.FC = () => {
               </div>
             )}
           </div>
+          {imageId && (
+            <UserListButton imageId={imageId} sidebar isExpanded={isExpanded} />
+          )}
         </div>
       </div>
     </div>

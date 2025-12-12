@@ -8,7 +8,15 @@ import { useRef } from "react";
 interface UserWithCoowner extends User {
   hasAccess?: boolean;
 }
-const UserListButton = ({ imageId }: { imageId: string }) => {
+const UserListButton = ({
+  imageId,
+  sidebar = false,
+  isExpanded,
+}: {
+  imageId: string;
+  sidebar?: boolean;
+  isExpanded?: boolean;
+}) => {
   const [visible, setVisible] = useState(false);
   const [imageUsers, setImageUsers] = useState<UserWithCoowner[]>([]);
 
@@ -76,13 +84,17 @@ const UserListButton = ({ imageId }: { imageId: string }) => {
   };
   return (
     <>
-      <div className="relative inline-block" ref={ref}>
+      <div
+        className={`relative ${sidebar ? "" : "inline-block"} ${isExpanded ? "" : "flex items-center justify-center relative"}`}
+        ref={ref}
+      >
         <button
           onClick={() => setVisible((cur) => !cur)}
-          className="flex gap-2 text-petrol-500 hover:text-petrol-400 relative"
+          className={`${sidebar ? "text-white hover:bg-gray-700 p-2 rounded-lg" : "text-petrol-500 hover:text-petrol-400"} 
+          flex gap-2 w-full`}
         >
-          Add User
-          <PiPlus size={24} />
+          {sidebar ? null : "Add User"} {<PiPlus size={24} />}
+          {isExpanded ? "Add User" : null}
         </button>
         {visible && (
           <div className="absolute bg-gray-800 border border-gray-700 mt-2 p-4 shadow-lg rounded w-64">
