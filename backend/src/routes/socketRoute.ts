@@ -150,13 +150,6 @@ export const socketRoute = new Elysia()
         console.log(
           `Drawing event in image ${imageId}: ${drawEvent.type} stroke ${drawEvent.strokeId} by ${drawEvent.userId} at (${drawEvent.x}, ${drawEvent.y})`
         );
-        // console.log(
-        //   `Total clients: ${drawingClients.size}, Broadcasting to: ${Array.from(
-        //     drawingClients.keys()
-        //   )
-        //     .filter((cId) => cId !== id)
-        //     .join(", ")}`
-        // );
 
         if (drawEvent.type === "end" || drawEvent.type === "draw") {
           await addPointToPath(drawEvent);
