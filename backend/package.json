@@ -19,7 +19,10 @@
   },
   "scripts": {
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "dev": "bun run --watch src/index.ts"
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun run prisma:generate",
+    "start": "bun run src/index.ts"
   }
 }

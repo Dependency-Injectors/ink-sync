@@ -10,6 +10,9 @@ import Draw from "../views/(application)/draw/Draw";
 import DrawingProvider from '../components/DrawingProvider';
 import { createElement } from 'react';
 import Images from "../views/Images";
+
+const basename = import.meta.env.BASE_URL;
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -38,4 +41,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+], {
+  basename,
+});

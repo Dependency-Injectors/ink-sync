@@ -57,6 +57,7 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
       }));
     })
     .get("/:id", async ({ params, user, status }) => {
+      // Catch-all route - must be LAST
       const userImage = await prisma.userImage.findFirst({
         where: { UserId: user.id, ImageId: params.id },
       });
