@@ -29,7 +29,8 @@ model User {
   password   String
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  userImages UserImage[] 
+  userImages UserImage[]
+  ownedImages Image[]    @relation("ImageOwner")
 }
 
 model UserImage {
@@ -48,6 +49,8 @@ model Image {
   id         String      @id @default(uuid())
   width      Int
   height     Int
+  ownerId    String
+  owner      User        @relation("ImageOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   paths      Path[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
