@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router";
 import { useDrawing } from "../../../hooks/useDrawing";
 import { axiosInstance } from "../../../lib/axios";
+import type { User } from "../../../lib/types";
+import CurrentUserList from "../../../components/CurrentUserList";
 
 type DrawEvent =
   | {
@@ -63,6 +65,7 @@ const Draw = () => {
   const [imageData, setImageData] = useState<ImageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUsers, setCurrentUsers] = useState<User[]>([]);
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [currentShape, setCurrentShape] = useState<Shape | null>(null);
   const rafIdRef = useRef<number | null>(null);
@@ -236,13 +239,13 @@ const Draw = () => {
     websocket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("Received WebSocket message:", data);
-
         if (data.type === "connected") {
           console.log(
             "Connection confirmed, connected users:",
             data.connectedCount,
           );
+          setCurrentUsers(data.connectedUsers);
+          
           const tempMap = new Map<string, ActiveStroke>();
           data.paths.forEach((stroke: ActiveStroke) => {
             tempMap.set(stroke.strokeId, stroke);
@@ -271,6 +274,10 @@ const Draw = () => {
               ctx.stroke();
             });
           }
+          return;
+        }
+        if (data.type === "user_left" || data.type === "user_joined") {
+          setCurrentUsers(data.connectedUsers);
           return;
         }
 
@@ -504,6 +511,7 @@ const Draw = () => {
 
   return (
     <div className="overflow-auto ml-16 flex items-center justify-center min-h-screen">
+      <CurrentUserList users={currentUsers} />
       <div className="p-4">
         <div className="max-w-[90vw] max-h-screen overflow-auto rounded-lg border-2 border-gray-600 shadow-2xl">
 

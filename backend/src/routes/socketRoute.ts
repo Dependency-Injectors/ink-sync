@@ -20,6 +20,10 @@ export type DrawEvent =
   | StartDrawEvent;
 
 const drawingRooms = new Map<string, Set<any>>();
+const roomUsers = new Map<
+  string, //imageId
+  Map<string, { userId: string; email: string }>
+>();
 
 export const socketRoute = new Elysia()
   .use(
@@ -65,6 +69,7 @@ export const socketRoute = new Elysia()
         (ws.data.store as any).imageId ||
         ws.data.query.imageId ||
         ws.data.query.id;
+      const userId = (ws.data.store as any).userId;
 
       if (!imageId) {
         ws.close();
@@ -78,13 +83,25 @@ export const socketRoute = new Elysia()
       }
       room.add(ws);
 
+      let users = roomUsers.get(imageId);
+      if (!users) {
+        users = new Map();
+        roomUsers.set(imageId, users);
+      }
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true },
+      });
+      if (user) {
+        users.set(user.id, { userId: user.id, email: user.email });
+      }
+
       const total = room.size;
+      const connectedUsers = Array.from(users.values());
+
       console.log(`Client connected to image ${imageId}. Room size: ${total}`);
 
-      const res = await getPathsByImageId(
-        imageId,
-        (ws.data.store as any).userId
-      );
+      const res = await getPathsByImageId(imageId, userId);
 
       if (!res.success) {
         ws.close(4001, "Unauthorized: " + res.message);
@@ -104,26 +121,69 @@ export const socketRoute = new Elysia()
           paths: res.paths,
           shapes,
           connectedCount: total,
+          connectedUsers,
           time: Date.now(),
         })
       );
+
+      room.forEach((client) => {
+        if (client !== ws && client.readyState === 1) {
+          client.send(
+            JSON.stringify({
+              type: "user_joined",
+              connectedCount: total,
+              connectedUsers,
+              time: Date.now(),
+            })
+          );
+        }
+      });
     },
     close(ws) {
       const imageId =
         (ws.data.store as any).imageId ||
         ws.data.query.imageId ||
         ws.data.query.id;
+      const userId = (ws.data.store as any).userId;
+
       if (!imageId) return;
 
       const room = drawingRooms.get(imageId);
       if (!room) return;
 
       room.delete(ws);
+
+      const users = roomUsers.get(imageId);
+
+      if (users) {
+        users.delete(userId);
+        if (users.size === 0) {
+          roomUsers.delete(imageId);
+        }
+      }
+
       if (room.size === 0) drawingRooms.delete(imageId);
 
       console.log(
         `Client disconnected from image ${imageId}. Room size: ${room.size}`
       );
+
+      if (room.size === 0 || !users) {
+        return;
+      }
+      const connectedUsers = Array.from(users.values());
+      room.forEach((client) => {
+        if (client.readyState === 1) {
+          client.send(
+            JSON.stringify({
+              type: "user_left",
+              connectedCount: room.size,
+              connectedUsers,
+              time: Date.now(),
+            })
+          );
+        }
+      });
     },
     async message(ws, message) {
       const imageId =
