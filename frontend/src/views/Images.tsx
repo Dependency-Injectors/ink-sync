@@ -56,6 +56,10 @@ const Images = () => {
     }
   };
 
+  const handleDeleteImage = (imageId: string) => {
+    setImages((prevImages) => prevImages.filter((img) => img.id !== imageId));
+  };
+
   return (
     <div className="max-w-[1200px] mx-auto my-8 px-4">
       <h1 className="text-2xl font-bold mb-4">Images</h1>
@@ -64,7 +68,7 @@ const Images = () => {
           <CreateImageForm createImage={createImage} />
         </li>
         {images.map((image) => (
-          <ImageCard key={image.id} image={image} />
+          <ImageCard key={image.id} image={image} onDelete={handleDeleteImage} />
         ))}
       </ul>
     </div>

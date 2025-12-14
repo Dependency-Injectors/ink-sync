@@ -76,6 +76,7 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
           data: {
             width,
             height,
+            ownerId: user.id,
           },
         });
         await prisma.userImage.create({
@@ -90,13 +91,25 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
       { body: ImagePlainInputCreate }
     )
     .delete("/:id", async ({ params, user, status }) => {
-      // TODO: right now images can be deleted by all users, need to restrict to owner
+      // Check if image exists and user has access
       const userImage = await prisma.userImage.findFirst({
         where: { UserId: user.id, ImageId: params.id },
       });
       if (!userImage) {
         return status(404, { error: "Image not found or not owned by user" });
       }
+      
+      // Check if user is the owner
+      const image = await prisma.image.findUnique({
+        where: { id: params.id },
+      });
+      if (!image) {
+        return status(404, { error: "Image not found" });
+      }
+      if (image.ownerId !== user.id) {
+        return status(403, { error: "Only the image owner can delete this image" });
+      }
+      
       await prisma.image.delete({
         where: { id: params.id },
       });
