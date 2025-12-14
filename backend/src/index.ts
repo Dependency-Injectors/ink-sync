@@ -7,6 +7,7 @@ import { imageRoutes } from "./routes/ImageRoute";
 import { socketRoute } from "./routes/socketRoute";
 import { userImageRoute } from "./routes/userImageRoute";
 import { usersRoute } from "./routes/usersRoute";
+import { shapeRoutes } from "./routes/shapeRoute";
 
 const app = new Elysia()
   .use(
@@ -23,6 +24,7 @@ const app = new Elysia()
   .use(socketRoute)
   .use(userImageRoute)
   .use(usersRoute)
+  .use(shapeRoutes)
   .listen(process.env.PORT || 1337);
 
 console.log(
