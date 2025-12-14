@@ -41,7 +41,7 @@ const SideBar: React.FC = () => {
 
   return (
     <div
-      className={`overflow-y-scroll fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 ${
+      className={`overflow-y-auto overflow-x-hidden fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500 ${
         isExpanded ? "w-64" : ""
       }`}
     >
