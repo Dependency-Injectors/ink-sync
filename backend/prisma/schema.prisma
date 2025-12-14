@@ -48,6 +48,7 @@ model UserImage {
 
 model Image {
   id         String      @id @default(uuid())
+  title      String      @default("untitled image")
   width      Int
   height     Int
   ownerId    String

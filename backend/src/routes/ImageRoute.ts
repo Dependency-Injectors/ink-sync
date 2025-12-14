@@ -71,11 +71,12 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
     })
     .post(
       "/",
-      async ({ body: { width, height }, user }) => {
+      async ({ body: { width, height, title }, user }) => {
         const newImage = await prisma.image.create({
           data: {
             width,
             height,
+            title,
             ownerId: user.id,
           },
         });

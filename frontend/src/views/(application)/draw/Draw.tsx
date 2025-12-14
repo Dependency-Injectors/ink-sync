@@ -506,6 +506,7 @@ const Draw = () => {
     <div className="overflow-auto ml-16 flex items-center justify-center min-h-screen">
       <div className="p-4">
         <div className="max-w-[90vw] max-h-screen overflow-auto rounded-lg border-2 border-gray-600 shadow-2xl">
+
           <div className="relative inline-block">
             <canvas
               ref={canvasRef}
