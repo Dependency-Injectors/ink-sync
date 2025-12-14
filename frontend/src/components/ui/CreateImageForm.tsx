@@ -16,6 +16,14 @@ const CreateImageForm = ({
       }}
     >
       <FormInput
+        label="title"
+        type="text"
+        id="title"
+        name="title"
+        placeholder="A beautiful sunrise over the mountains"
+        required
+      />
+      <FormInput
         label="Width"
         type="number"
         id="width"
@@ -28,7 +36,7 @@ const CreateImageForm = ({
       <FormInput
         label="Height"
         type="number"
-id="height"
+        id="height"
         name="height"
         placeholder="600"
         min={400}

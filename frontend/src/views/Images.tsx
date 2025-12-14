@@ -11,6 +11,7 @@ export type Image = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  title: string;
   width: number;
   height: number;
 };
@@ -36,7 +37,7 @@ const Images = () => {
         console.error("Error fetching images:", error);
       }
     };
-    
+
     fetchImages();
   }, [navigate, setUser]);
 
@@ -44,9 +45,11 @@ const Images = () => {
     try {
       const width = Number(formData.get("width"));
       const height = Number(formData.get("height"));
+      const title = formData.get("title");
       const res = await axiosInstance.post("/images/", {
         width,
         height,
+        title,
       });
       setImages((prevImages) => [...prevImages, res.data]);
       toast.success("Image created successfully");
