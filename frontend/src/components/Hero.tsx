@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Particle } from "../../utils/Particles";
 import { useTheme } from "../lib/useTheme";
+import { Link } from "react-router";
 const Hero = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -70,12 +71,18 @@ const Hero = () => {
         </p>
       </div>
       <div className="flex gap-5 mt-6">
-        <button className="mt-10 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg shadow-cyan-500/30 z-30 animate-shadow-pulse">
+        <Link
+          to="/images"
+          className="mt-10 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg shadow-cyan-500/30 z-30 animate-shadow-pulse inline-block text-center"
+        >
           Get Started
-        </button>
-        <button className="mt-10 px-6 py-3 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded-full shadow-lg shadow-cyan-500/30 z-30">
+        </Link>
+        <Link
+          to="/about"
+          className="mt-10 px-6 py-3 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded-full shadow-lg shadow-cyan-500/30 z-30 inline-block text-center"
+        >
           About Us
-        </button>
+        </Link>
       </div>
     </div>
   );

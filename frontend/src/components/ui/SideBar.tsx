@@ -47,7 +47,7 @@ const SideBar: React.FC = () => {
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="absolute -right-3 top-6 bg-gray-700 hover:bg-gray-600 text-white rounded-full p-1 border border-gray-600 transition-colors"
+        className="absolute right-1 top-6 bg-gray-700 hover:bg-gray-600 text-white rounded-full p-1 border border-gray-600 transition-colors"
       >
         {isExpanded ? (
           <FiChevronLeft className="w-4 h-4" />
@@ -191,20 +191,50 @@ const SideBar: React.FC = () => {
               </h3>
             )}
 
-            <div className={`flex items-center gap-3 ${!isExpanded && "justify-center"}`}>
-              {!isExpanded && <IoColorPaletteOutline className="w-5 h-5 text-gray-400" />}
+            {!isExpanded ? (
+              <div className="flex flex-col items-center gap-2">
+                <IoColorPaletteOutline className="w-5 h-5 text-gray-400" />
+                 <label
+                   title={"Current Color: " + brushColor.slice(0, 7)}
+                htmlFor="color-input"
+                className="size-10 p-0 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent hover:border-blue-400 transition-colors"
+                style={{ backgroundColor: brushColor.slice(0, 7) }}
+              ></label>
               <input
                 type="color"
+                id="color-input"
                 name="stroke-color"
                 value={brushColor.slice(0, 7)}
                 title={"Current Color: " + brushColor.slice(0, 7)}
                 onChange={(e) => {
-                  const newColor = e.target.value + alpha.toString(16).padStart(2, "0");
+                  const newColor =
+                    e.target.value + alpha.toString(16).padStart(2, "0");
                   setBrushColor(newColor);
                 }}
-                className="w-10 h-10 p-0 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent hover:border-blue-400 transition-colors"
+                className="hidden"
               />
-              {isExpanded && (
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                  <label
+                    title={"Current Color: " + brushColor.slice(0, 7)}
+                htmlFor="color-input"
+                className="size-10 p-0 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent hover:border-blue-400 transition-colors"
+                style={{ backgroundColor: brushColor.slice(0, 7) }}
+              ></label>
+              <input
+                type="color"
+                id="color-input"
+                name="stroke-color"
+                value={brushColor.slice(0, 7)}
+              
+                onChange={(e) => {
+                  const newColor =
+                    e.target.value + alpha.toString(16).padStart(2, "0");
+                  setBrushColor(newColor);
+                }}
+                className="hidden"
+              />
                 <div className="flex-1">
                   <div className="text-xs text-gray-400 mb-1">Opacity: {Math.round((alpha / 255) * 100)}%</div>
                   <input
@@ -222,8 +252,8 @@ const SideBar: React.FC = () => {
                     className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             
             {isExpanded && recentColors.length > 0 && (
               <div>
