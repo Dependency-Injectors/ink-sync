@@ -71,8 +71,6 @@ export const imageRoutes = new Elysia().group("/images", (app) =>
     .post(
       "/",
       async ({ body: { width, height, title }, user }) => {
-        
-        console.log("Creating image with title:", title);
         const newImage = await prisma.image.create({
           data: {
             width,

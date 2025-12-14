@@ -377,7 +377,7 @@ const Draw = () => {
             ref={canvasRef}
             width={imageData.width}
             height={imageData.height}
-            className="cursor-crosshair bg-white  block rounded-lg"
+            className="cursor-crosshair bg-white block rounded-lg"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

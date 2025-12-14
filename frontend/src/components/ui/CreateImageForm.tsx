@@ -16,7 +16,7 @@ const CreateImageForm = ({
       }}
     >
       <FormInput
-        label="title"
+        label="Title"
         type="text"
         id="title"
         name="title"
