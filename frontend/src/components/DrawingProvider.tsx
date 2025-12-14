@@ -9,7 +9,7 @@ interface DrawingProviderProps {
 const DrawingProvider: React.FC<DrawingProviderProps> = ({ children }) => {
   const [brushColor, setBrushColor] = useState('#2563eb')
   const [brushSize, setBrushSize] = useState(2)
-  const [currentTool, setCurrentTool] = useState<'brush' | 'eraser'>('brush')
+  const [currentTool, setCurrentTool] = useState<'brush' | 'eraser' | 'rectangle' | 'circle' | 'line'>('brush')
 
   const value: DrawingContextType = {
     brushColor,

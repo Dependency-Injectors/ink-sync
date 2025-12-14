@@ -108,11 +108,18 @@ export const socketRoute = new Elysia()
         return;
       }
 
+      // Get existing shapes
+      const shapes = await prisma.shape.findMany({
+        where: { imageId },
+        orderBy: { createdAt: "asc" },
+      });
+
       ws.send(
         JSON.stringify({
           type: "connected",
           imageId,
           paths: res.paths,
+          shapes,
           connectedCount: total,
           connectedUsers,
           time: Date.now(),
@@ -186,7 +193,29 @@ export const socketRoute = new Elysia()
       if (!imageId) return;
 
       try {
-        const drawEvent: DrawEvent = message as DrawEvent;
+        const event: any = message;
+        
+        // Handle shape events
+        if (event.type === "shape") {
+          const senderId = (ws.data.store as any).userId as string | undefined;
+          
+          // Broadcast shape to other clients in the room
+          const room = drawingRooms.get(imageId);
+          if (room) {
+            const messageStr = JSON.stringify(event);
+            room.forEach((client) => {
+              if (client !== ws && client.readyState === 1) {
+                client.send(messageStr);
+              }
+            });
+          }
+          
+          console.log(`Shape created in image ${imageId}: ${event.shape?.type}`);
+          return;
+        }
+        
+        // Handle regular draw events
+        const drawEvent: DrawEvent = event as DrawEvent;
         if (!drawEvent.type || !drawEvent.userId || !drawEvent.strokeId) {
           throw new Error("Invalid draw event structure"); // TODO: handle errors better
         }

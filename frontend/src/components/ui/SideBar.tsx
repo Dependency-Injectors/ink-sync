@@ -14,7 +14,7 @@ import UserListButton from "../UserListButton";
 
 const SideBar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { brushColor, brushSize, setBrushColor, setBrushSize } = useDrawing();
+  const { brushColor, brushSize, setBrushColor, setBrushSize, currentTool, setCurrentTool } = useDrawing();
   const { id: imageId } = useParams<{ id: string }>();
   const [recentColors, setRecentColors] = useState<string[]>([]);
   const [alpha, setAlpha] = useState<number>(255);
@@ -41,7 +41,7 @@ const SideBar: React.FC = () => {
 
   return (
     <div
-      className={`overflow-y-scroll fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 ${
+      className={`overflow-y-auto overflow-x-hidden fixed left-0 top-0 bottom-0 bg-gray-800 border-r border-gray-600 transition-all duration-300 ease-in-out z-50 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500 ${
         isExpanded ? "w-64" : ""
       }`}
     >
@@ -87,59 +87,126 @@ const SideBar: React.FC = () => {
             </h3>
           )}
 
-          <div
-            className={`${isExpanded ? "flex items-center space-x-3" : ""} p-2 rounded-lg bg-gray-700`}
-          >
-            <FiEdit3 className="w-5 h-5 text-blue-400 shrink-0" />
-            {isExpanded && <span className="text-gray-300">Brush Tool</span>}
-          </div>
+          {/* Tools as thumbnail grid */}
+          {isExpanded ? (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setCurrentTool('brush')}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-colors ${
+                  currentTool === 'brush' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Brush"
+              >
+                <FiEdit3 className="w-6 h-6 text-blue-400 mb-1" />
+                <span className="text-xs text-gray-300">Brush</span>
+              </button>
 
-          <div className="space-y-2">
-            <div
-              className={`flex items-center space-x-3 ${isExpanded ? "" : "justify-center"}`}
-            >
-              <IoColorPaletteOutline className="w-5 h-5 text-gray-400 shrink-0" />
-              {isExpanded && (
-                <span className="text-sm text-gray-400">Color</span>
-              )}
+              <button
+                onClick={() => setCurrentTool('rectangle')}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-colors ${
+                  currentTool === 'rectangle' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Rectangle"
+              >
+                <div className="w-6 h-6 border-2 border-blue-400 mb-1" />
+                <span className="text-xs text-gray-300">Rectangle</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTool('circle')}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-colors ${
+                  currentTool === 'circle' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Circle"
+              >
+                <div className="w-6 h-6 border-2 border-blue-400 rounded-full mb-1" />
+                <span className="text-xs text-gray-300">Circle</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTool('line')}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-colors ${
+                  currentTool === 'line' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Line"
+              >
+                <div className="w-6 h-6 flex items-center justify-center mb-1">
+                  <div className="w-full border-b-2 border-blue-400" />
+                </div>
+                <span className="text-xs text-gray-300">Line</span>
+              </button>
             </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => setCurrentTool('brush')}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentTool === 'brush' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Brush"
+              >
+                <FiEdit3 className="w-5 h-5 text-blue-400" />
+              </button>
 
-            <div
-              className={`p-2 rounded-lg flex items-center hover:bg-gray-700 transition-colors ${isExpanded ? "" : "justify-center"}`}
-            >
+              <button
+                onClick={() => setCurrentTool('rectangle')}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentTool === 'rectangle' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Rectangle"
+              >
+                <div className="w-5 h-5 border-2 border-blue-400" />
+              </button>
+
+              <button
+                onClick={() => setCurrentTool('circle')}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentTool === 'circle' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Circle"
+              >
+                <div className="w-5 h-5 border-2 border-blue-400 rounded-full" />
+              </button>
+
+              <button
+                onClick={() => setCurrentTool('line')}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentTool === 'line' ? 'bg-blue-600 ring-2 ring-blue-400' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Line"
+              >
+                <div className="w-5 h-5 flex items-center">
+                  <div className="w-full border-b-2 border-blue-400" />
+                </div>
+              </button>
+            </div>
+          )}
+
+          {/* Color Picker */}
+          <div className="space-y-3">
+            {isExpanded && (
+              <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <IoColorPaletteOutline className="w-5 h-5" />
+                Color
+              </h3>
+            )}
+
+            <div className={`flex items-center gap-3 ${!isExpanded && "justify-center"}`}>
+              {!isExpanded && <IoColorPaletteOutline className="w-5 h-5 text-gray-400" />}
               <input
                 type="color"
                 name="stroke-color"
                 value={brushColor.slice(0, 7)}
                 title={"Current Color: " + brushColor.slice(0, 7)}
                 onChange={(e) => {
-                  const newColor =
-                    e.target.value + alpha.toString(16).padStart(2, "0");
+                  const newColor = e.target.value + alpha.toString(16).padStart(2, "0");
                   setBrushColor(newColor);
                 }}
-                className="aspect-square w-6 h-6 p-0 rounded border-2 border-gray-600 cursor-pointer bg-transparent"
+                className="w-10 h-10 p-0 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent hover:border-blue-400 transition-colors"
               />
-            </div>
-            {isExpanded && recentColors.length > 0 && (
-              <div className="mt-2">
-                <span className="text-xs text-gray-500">Recent Colors:</span>
-                <div className="flex space-x-2 mt-1">
-                  {recentColors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setBrushColor(color)}
-                      className="w-6 h-6 rounded border-2 border-gray-600 p-0"
-                      style={{ backgroundColor: color }}
-                      title={color}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-            {isExpanded && (
-              <div className="mt-2">
-                <label>Alpha</label>
-                <div className="">
+              {isExpanded && (
+                <div className="flex-1">
+                  <div className="text-xs text-gray-400 mb-1">Opacity: {Math.round((alpha / 255) * 100)}%</div>
                   <input
                     type="range"
                     min="0"
@@ -149,54 +216,80 @@ const SideBar: React.FC = () => {
                       const newAlpha = parseInt(e.target.value);
                       setAlpha(newAlpha);
                       setBrushColor(
-                        brushColor.slice(0, 7) +
-                          newAlpha.toString(16).padStart(2, "0"),
+                        brushColor.slice(0, 7) + newAlpha.toString(16).padStart(2, "0"),
                       );
                     }}
-                    className=""
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
                   />
+                </div>
+              )}
+            </div>
+            
+            {isExpanded && recentColors.length > 0 && (
+              <div>
+                <span className="text-xs text-gray-500 mb-2 block">Recent Colors</span>
+                <div className="flex flex-wrap gap-2">
+                  {recentColors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setBrushColor(color)}
+                      className="w-8 h-8 rounded-lg border-2 border-gray-600 hover:border-blue-400 transition-colors"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
                 </div>
               </div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <div
-              className={`flex items-center space-x-3 ${isExpanded ? "" : "justify-center"}`}
-            >
-              <FiSliders className="w-5 h-5 text-gray-400 shrink-0" />
-              {isExpanded && (
-                <span className="text-sm text-gray-400">Size</span>
-              )}
-            </div>
+          {/* Brush Size */}
+          <div className="space-y-3">
+            {isExpanded && (
+              <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <FiSliders className="w-5 h-5" />
+                Brush Size
+              </h3>
+            )}
+
+            {!isExpanded && (
+              <div className="flex justify-center">
+                <FiSliders className="w-5 h-5 text-gray-400" />
+              </div>
+            )}
 
             {isExpanded && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    Current: {brushSize}px
-                  </span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span>Size: {brushSize}px</span>
+                  <div 
+                    className="rounded-full bg-blue-400" 
+                    style={{ 
+                      width: `${Math.min(brushSize, 16)}px`, 
+                      height: `${Math.min(brushSize, 16)}px` 
+                    }}
+                  />
                 </div>
                 <input
                   type="range"
                   min="1"
-                  max="24"
+                  max="32"
                   value={brushSize}
                   onChange={(e) => setBrushSize(parseInt(e.target.value))}
                   className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
                 />
-                <div className="flex flex-wrap gap-1 mt-2">
+                <div className="grid grid-cols-4 gap-1">
                   {brushSizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setBrushSize(size)}
-                      className={`px-2 py-1 text-xs rounded border transition-colors ${
+                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
                         brushSize === size
-                          ? "bg-blue-600 border-blue-400 text-white"
-                          : "bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                          ? "bg-blue-600 text-white ring-2 ring-blue-400"
+                          : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                       }`}
                     >
-                      {size}px
+                      {size}
                     </button>
                   ))}
                 </div>
