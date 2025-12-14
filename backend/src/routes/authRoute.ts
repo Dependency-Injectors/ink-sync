@@ -67,7 +67,9 @@ const authRoutes = new Elysia()
         value,
         httpOnly: true,
         maxAge: 60 * 60 * 24,
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
       });
 
       return { email: user.email };

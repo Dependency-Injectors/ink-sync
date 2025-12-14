@@ -29,6 +29,17 @@ interface ActiveStroke {
   size: number;
 }
 
+interface Shape {
+  id?: string;
+  type: 'rectangle' | 'circle' | 'line';
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  color: string;
+  strokeWidth: number;
+}
+
 interface ImageData {
   id: string;
   width: number;
@@ -39,8 +50,9 @@ interface ImageData {
 
 const Draw = () => {
   const { id: imageId } = useParams<{ id: string }>();
-  const { brushColor, brushSize } = useDrawing();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { brushColor, brushSize, currentTool } = useDrawing();
+  const canvasRef = useRef<HTMLCanvasElement>(null); // For strokes
+  const shapeCanvasRef = useRef<HTMLCanvasElement>(null); // For shapes
   const [isDrawing, setIsDrawing] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [user] = useState(
@@ -51,6 +63,9 @@ const Draw = () => {
   const [imageData, setImageData] = useState<ImageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shapes, setShapes] = useState<Shape[]>([]);
+  const [currentShape, setCurrentShape] = useState<Shape | null>(null);
+  const rafIdRef = useRef<number | null>(null);
 
   // Fetch image data
   useEffect(() => {
@@ -102,32 +117,69 @@ const Draw = () => {
     fetchImage();
   }, [imageId]);
 
-  const redrawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
+  // Fetch shapes for the image
+  useEffect(() => {
+    const fetchShapes = async () => {
+      if (!imageId) return;
+
+      try {
+        const response = await axiosInstance.get(`/shapes/${imageId}`);
+        setShapes(response.data);
+      } catch (err) {
+        console.error("Error fetching shapes:", err);
+      }
+    };
+
+    fetchShapes();
+  }, [imageId]);
+
+  const drawShape = useCallback((ctx: CanvasRenderingContext2D, shape: Shape) => {
+    ctx.strokeStyle = shape.color;
+    ctx.lineWidth = shape.strokeWidth;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    const width = shape.endX - shape.startX;
+    const height = shape.endY - shape.startY;
+
+    ctx.beginPath();
+    if (shape.type === 'rectangle') {
+      ctx.rect(shape.startX, shape.startY, width, height);
+    } else if (shape.type === 'circle') {
+      const centerX = (shape.startX + shape.endX) / 2;
+      const centerY = (shape.startY + shape.endY) / 2;
+      const radius = Math.sqrt(width * width + height * height) / 2;
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    } else if (shape.type === 'line') {
+      ctx.moveTo(shape.startX, shape.startY);
+      ctx.lineTo(shape.endX, shape.endY);
+    }
+    ctx.stroke();
+  }, []);
+
+  // Redraw shape canvas (permanent shapes + preview)
+  const redrawShapeCanvas = useCallback(() => {
+    const canvas = shapeCanvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Redraw all active strokes
-    activeStrokes.current.forEach((stroke) => {
-      if (stroke.points.length < 2) return;
-
-      ctx.strokeStyle = stroke.color;
-      ctx.lineWidth = stroke.size;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.beginPath();
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-
-      for (let i = 1; i < stroke.points.length; i++) {
-        ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
-      }
-
-      ctx.stroke();
+    // Redraw all permanent shapes
+    shapes.forEach((shape) => {
+      drawShape(ctx, shape);
     });
-  }, []);
+
+    // Redraw current shape preview
+    if (currentShape) {
+      drawShape(ctx, currentShape);
+    }
+  }, [shapes, currentShape, drawShape]);
+
+  // Redraw shapes whenever they change
+  useEffect(() => {
+    redrawShapeCanvas();
+  }, [redrawShapeCanvas]);
 
   useEffect(() => {
     const handleDrawEvent = (event: DrawEvent) => {
@@ -144,13 +196,14 @@ const Draw = () => {
           color: event.color,
           size: event.size,
         });
-      } else {
+      } else if (event.type === "draw") {
         const stroke = strokes.get(event.strokeId);
         if (!stroke) {
           console.warn(`Stroke ${event.strokeId} not found for event`, event); // basic error handling
+          return;
         }
 
-        if (stroke && stroke.points.length > 0) {
+        if (stroke.points.length > 0) {
           const lastPoint = stroke.points[stroke.points.length - 1];
           stroke.points.push({ x: event.x, y: event.y });
 
@@ -164,8 +217,7 @@ const Draw = () => {
           ctx.lineTo(event.x, event.y);
           ctx.stroke();
         }
-      }
-      if (event.type === "end") {
+      } else if (event.type === "end") {
         console.log(`Stroke ${event.strokeId} completed`);
       }
     };
@@ -196,7 +248,29 @@ const Draw = () => {
             tempMap.set(stroke.strokeId, stroke);
           });
           activeStrokes.current = tempMap;
-          redrawCanvas();
+          // Load shapes from connected message
+          if (data.shapes) {
+            setShapes(data.shapes);
+          }
+          // Redraw strokes on stroke canvas
+          const canvas = canvasRef.current;
+          const ctx = canvas?.getContext("2d");
+          if (canvas && ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            activeStrokes.current.forEach((stroke) => {
+              if (stroke.points.length < 2) return;
+              ctx.strokeStyle = stroke.color;
+              ctx.lineWidth = stroke.size;
+              ctx.lineCap = "round";
+              ctx.lineJoin = "round";
+              ctx.beginPath();
+              ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+              for (let i = 1; i < stroke.points.length; i++) {
+                ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+              }
+              ctx.stroke();
+            });
+          }
           return;
         }
 
@@ -207,13 +281,18 @@ const Draw = () => {
         ) {
           handleDrawEvent(data);
         }
+
+        if (data.type === "shape") {
+          console.log("Received shape event:", data.shape);
+          setShapes((prev) => [...prev, data.shape]);
+        }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
     };
 
     return () => websocket.close();
-  }, [imageId, user, redrawCanvas]);
+  }, [imageId, user]);
 
   const sendDrawEvent = (
     type: DrawEvent["type"],
@@ -286,58 +365,112 @@ const Draw = () => {
   //   redrawCanvas();
   // };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const rect = canvasRef.current?.getBoundingClientRect();
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
     if (!rect) return;
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const strokeId = `${user}-${Date.now()}`;
 
     setIsDrawing(true);
-    setCurrentStrokeId(strokeId);
-    sendDrawEvent("start", x, y, strokeId);
-    // handleLocalDrawEvent({ type: "start", x, y, userId: user, strokeId });
+
+    // Handle shape tools
+    if (currentTool === 'rectangle' || currentTool === 'circle' || currentTool === 'line') {
+      setCurrentShape({
+        type: currentTool,
+        startX: x,
+        startY: y,
+        endX: x,
+        endY: y,
+        color: brushColor,
+        strokeWidth: brushSize,
+      });
+    } else {
+      // Handle brush/eraser - original WebSocket-based approach
+      const strokeId = `${user}-${Date.now()}`;
+      setCurrentStrokeId(strokeId);
+      sendDrawEvent("start", x, y, strokeId);
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDrawing || !currentStrokeId) return;
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
 
-    const rect = canvasRef.current?.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     if (!rect) return;
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    sendDrawEvent("draw", x, y, currentStrokeId);
-    // handleLocalDrawEvent({
-    //   type: "draw",
-    //   x,
-    //   y,
-    //   userId: user,
-    //   strokeId: currentStrokeId,
-    // });
+    // Handle shape preview
+    if (currentShape) {
+      setCurrentShape({
+        ...currentShape,
+        endX: x,
+        endY: y,
+      });
+      
+      // Throttle redraws using requestAnimationFrame
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          redrawShapeCanvas();
+          rafIdRef.current = null;
+        });
+      }
+    } else if (currentStrokeId) {
+      // Handle brush/eraser - original WebSocket approach
+      sendDrawEvent("draw", x, y, currentStrokeId);
+    }
   };
 
-  const handleMouseUp = (e: React.MouseEvent) => {
-    if (!currentStrokeId) return;
+  const handleMouseUp = async (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
 
-    const rect = canvasRef.current?.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     if (!rect) return;
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     setIsDrawing(false);
-    sendDrawEvent("end", x, y, currentStrokeId);
-    // handleLocalDrawEvent({
-    //   type: "end",
-    //   x,
-    //   y,
-    //   userId: user,
-    //   strokeId: currentStrokeId,
-    // });
-    setCurrentStrokeId(null);
+
+    // Handle shape completion
+    if (currentShape) {
+      const completedShape = {
+        ...currentShape,
+        endX: x,
+        endY: y,
+      };
+
+      try {
+        // Save shape to backend
+        const response = await axiosInstance.post('/shapes', {
+          imageId,
+          ...completedShape,
+        });
+
+        const savedShape = response.data;
+        
+        // Send shape via WebSocket
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'shape',
+            shape: savedShape,
+          }));
+        }
+
+        // Add to local state
+        setShapes((prev) => [...prev, savedShape]);
+      } catch (err) {
+        console.error("Error saving shape:", err);
+      }
+
+      setCurrentShape(null);
+    } else if (currentStrokeId) {
+      // Handle brush/eraser completion
+      sendDrawEvent("end", x, y, currentStrokeId);
+      setCurrentStrokeId(null);
+    }
   };
 
   if (loading) {
@@ -373,16 +506,32 @@ const Draw = () => {
     <div className="overflow-auto ml-16 flex items-center justify-center min-h-screen">
       <div className="p-4">
         <div className="max-w-[90vw] max-h-screen overflow-auto rounded-lg border-2 border-gray-600 shadow-2xl">
-          <canvas
-            ref={canvasRef}
-            width={imageData.width}
-            height={imageData.height}
-            className="cursor-crosshair bg-white block rounded-lg"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={() => setIsDrawing(false)}
-          />
+
+          <div className="relative inline-block">
+            <canvas
+              ref={canvasRef}
+              width={imageData.width}
+              height={imageData.height}
+              className="bg-white block rounded-lg"
+            />
+            <canvas
+              ref={shapeCanvasRef}
+              width={imageData.width}
+              height={imageData.height}
+              className="block rounded-lg absolute top-0 left-0"
+              style={{ pointerEvents: 'none' }}
+            />
+            <canvas
+              width={imageData.width}
+              height={imageData.height}
+              className="cursor-crosshair block rounded-lg absolute top-0 left-0"
+              style={{ backgroundColor: 'transparent', pointerEvents: 'auto' }}
+              onPointerDown={handleMouseDown}
+              onPointerMove={handleMouseMove}
+              onPointerUp={handleMouseUp}
+              onPointerLeave={() => setIsDrawing(false)}
+            />
+          </div>
         </div>
       </div>
     </div>
